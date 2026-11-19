@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>الدوحة المحمدية - المستويات والأذكار والشمائل</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Amiri+Quran&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Cairo', sans-serif; background: #0a1a0c; min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; padding: 8px; padding-bottom: 85px; }
+    body::before { content: ""; position: fixed; inset: 0; background: radial-gradient(ellipse at 20% 30%, rgba(212, 175, 55, 0.12) 0%, transparent 40%), radial-gradient(ellipse at 80% 70%, rgba(46, 125, 50, 0.15) 0%, transparent 45%); pointer-events: none; z-index: 0; }
+    
+    body.dark-mode { background: #0a0f0a; }
+    body.dark-mode .glass-card, body.dark-mode .custom-alert, body.dark-mode .reminder-popup .glass-card, body.dark-mode .prayer-popup, body.dark-mode .hadith-popup .glass-card {
+      background: linear-gradient(145deg, rgba(20, 30, 18, 0.96), rgba(15, 25, 12, 0.98));
+      color: #f5e7c4;
+    }
+    body.dark-mode .glass-card .screen-title, body.dark-mode .glass-card h1, body.dark-mode .glass-card h2, body.dark-mode .glass-card h3,
+    body.dark-mode .glass-card p, body.dark-mode .glass-card span, body.dark-mode .glass-card div:not(.level-icon-circle):not(.level-arrow-circle),
+    body.dark-mode .glass-card td, body.dark-mode .glass-card th, body.dark-mode .glass-card .info-box, body.dark-mode .glass-card .quran-text,
+    body.dark-mode .glass-card .sub-title, body.dark-mode .glass-card .sunnah-step {
+      color: #d4af37 !important;
+    }
+    body.dark-mode .glass-card .level-status, body.dark-mode .glass-card .level-name, body.dark-mode .glass-card .day-progress {
+      color: #f5e7c4 !important;
+    }
+    body.dark-mode .muhasaba-table, body.dark-mode .muhasaba-table td {
+      background: #1e2a1a;
+      border-color: #d4af37;
+      color: #d4af37;
+    }
+    body.dark-mode .muhasaba-table th {
+      background: #2a3a24;
+      color: #f5d742;
+    }
+    body.dark-mode .info-box, body.dark-mode .day-progress {
+      background: #2a3a24;
+      color: #d4af37;
+    }
+    body.dark-mode .notification-card {
+      background: #2a3a24;
+      border-color: #d4af37;
+      color: #d4af37;
+    }
+    body.dark-mode .datetime-bar, body.dark-mode .bottom-nav {
+      background: linear-gradient(145deg, rgba(10, 25, 8, 0.98), rgba(5, 15, 3, 0.98));
+    }
+    body.dark-mode .datetime-item, body.dark-mode .current-time {
+      color: #d4af37;
+    }
+    body.dark-mode .check-btn, body.dark-mode .cross-btn {
+      background: #2a2a2a;
+      border-color: #d4af37;
+    }
+    body.dark-mode .check-btn.active { background: #2e7d32; }
+    body.dark-mode .cross-btn.active { background: #b33f2f; }
+    
+    .app-wrapper { max-width: 780px; width: 100%; position: relative; z-index: 2; }
+    .glass-card { background: linear-gradient(145deg, rgba(255, 252, 240, 0.96), rgba(250, 245, 230, 0.92)); backdrop-filter: blur(20px); border-radius: 35px; padding: 15px 12px; box-shadow: 0 25px 40px -8px rgba(0,0,0,0.5), 0 0 0 1.5px rgba(212,175,55,0.3); border: 1px solid rgba(180,148,90,0.5); }
+    .datetime-bar { background: linear-gradient(145deg, rgba(20,40,15,0.95), rgba(10,25,8,0.98)); border-radius: 25px; padding: 10px 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border: 1.5px solid #d4af37; flex-wrap: wrap; gap: 8px; }
+    .datetime-item { display: flex; align-items: center; gap: 8px; color: #f5e7c4; font-size: 0.7rem; }
+    .datetime-item i { color: #d4af37; }
+    .current-time { background: linear-gradient(145deg, #2e7d32, #1b5e20); padding: 5px 12px; border-radius: 20px; color: #f5e7c4; font-weight: bold; font-size: 0.8rem; border: 1px solid #d4af37; cursor: pointer; transition: 0.2s; }
+    .current-time:hover { opacity: 0.8; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(145deg, rgba(20,40,15,0.96), rgba(10,25,8,0.98)); backdrop-filter: blur(15px); display: flex; justify-content: space-around; align-items: center; padding: 8px 5px 15px; z-index: 1000; border-top: 2px solid #d4af37; max-width: 780px; margin: 0 auto; border-radius: 30px 30px 0 0; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; background: none; border: none; color: #b8945a; font-size: 0.65rem; cursor: pointer; padding: 4px 12px; border-radius: 30px; transition: 0.2s; }
+    .nav-item i { font-size: 1.3rem; }
+    .nav-item.active { background: linear-gradient(145deg, #2e7d32, #1b5e20); color: #f5e7c4; }
+    .nav-item.active i { color: #f5d742; }
+    .screen-header { display: flex; align-items: center; margin-bottom: 15px; gap: 10px; }
+    .back-btn { background: linear-gradient(145deg, #5a3e2b, #3a281a); border: none; color: #f0dba8; width: 40px; height: 40px; border-radius: 12px 4px 12px 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 0 #2a1c10; }
+    .screen-title { flex: 1; text-align: center; font-size: 1.2rem; font-weight: 800; background: linear-gradient(135deg, #2e5e2e, #1a3a1a); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .hidden { display: none !important; }
+    .level-card { background: linear-gradient(135deg, rgba(255,250,235,0.95), rgba(240,230,210,0.9)); border-radius: 24px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 6px 0 #6b4f2a; border: 2px solid #d4af37; cursor: pointer; margin-bottom: 12px; transition: 0.05s linear; }
+    .level-card.locked { opacity: 0.6; filter: grayscale(0.2); cursor: not-allowed; background: #ccc; }
+    .level-left { display: flex; align-items: center; gap: 12px; }
+    .level-icon-circle { width: 50px; height: 50px; background: radial-gradient(circle at 30% 25%, #4a7a3a, #1e3a1e); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: 2px solid #d4af37; color: #f5d742; }
+    .level-name { font-size: 1rem; font-weight: 800; color: #2c4b1e; }
+    .level-status { font-size: 0.7rem; color: #5a4328; }
+    .level-arrow-circle { background: linear-gradient(145deg, #b8942e, #8b6914); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; }
+    .muhasaba-table { width: 100%; border-collapse: collapse; background: #fdf8ef; border-radius: 16px; font-size: 0.75rem; margin-bottom: 15px; }
+    .muhasaba-table th, .muhasaba-table td { border: 1px solid #b3925c; padding: 8px 4px; text-align: center; vertical-align: middle; }
+    .muhasaba-table th { background: #1e3a1e; color: #f5d742; font-weight: bold; }
+    .check-btn, .cross-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #b3925c; cursor: pointer; background: white; font-size: 0.9rem; margin: 0 2px; transition: 0.1s; }
+    .check-btn.active { background: #2e7d32; color: white; border-color: #2e7d32; }
+    .cross-btn.active { background: #b33f2f; color: white; border-color: #b33f2f; }
+    .save-btn { background: linear-gradient(145deg, #2e7d32, #1b5e20); color: white; border: none; border-radius: 35px; padding: 12px; font-size: 1rem; font-weight: bold; width: 100%; margin-top: 15px; cursor: pointer; box-shadow: 0 5px 0 #0d3b0d; }
+    .vertical-buttons { display: flex; flex-direction: column; gap: 12px; margin: 10px 0; }
+    .vertical-adhkar-btn { padding: 14px; background: linear-gradient(145deg, #2e7d32, #1b5e20); color: white; border: none; border-radius: 50px; font-size: 1rem; font-weight: bold; cursor: pointer; text-align: center; box-shadow: 0 5px 0 #0d3b0d; }
+    .adhkar-page .content { font-size: 0.9rem; line-height: 1.8; max-height: 550px; overflow-y: auto; padding: 8px; }
+    .profile-header { display: flex; align-items: center; gap: 15px; background: #e8dcc8; border-radius: 30px; margin-bottom: 15px; padding: 15px; }
+    .profile-avatar { width: 55px; height: 55px; background: radial-gradient(circle at 30% 25%, #4a7a3a, #1e3a1e); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; border: 2px solid #d4af37; color: #f5d742; }
+    .profile-btn { background: #2e7d32; color: white; border: none; padding: 12px; border-radius: 25px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; font-size: 1rem; text-align: center; display: block; }
+    .profile-btn-outline { background: transparent; border: 2px solid #2e7d32; color: #2e7d32; padding: 12px; border-radius: 25px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; font-size: 1rem; text-align: center; display: block; }
+    .custom-alert-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 10001; }
+    .custom-alert { background: linear-gradient(145deg, rgba(255, 252, 240, 0.96), rgba(250, 245, 230, 0.92)); backdrop-filter: blur(20px); border-radius: 35px; padding: 20px; max-width: 90%; width: 350px; text-align: center; border: 3px solid #d4af37; box-shadow: 0 25px 40px -8px rgba(0,0,0,0.5); }
+    .custom-alert-btn { background: #2e7d32; color: white; border: none; border-radius: 25px; padding: 8px 25px; margin-top: 15px; cursor: pointer; font-weight: bold; }
+    .call-button { display: inline-block; background: #2e7d32; color: white; border: none; border-radius: 35px; padding: 10px 20px; margin-top: 15px; cursor: pointer; font-weight: bold; text-decoration: none; }
+    body.dark-mode .call-button { background: #d4af37; color: #1e3a1e; }
+    .prayer-popup { background: linear-gradient(145deg, rgba(255, 252, 240, 0.96), rgba(250, 245, 230, 0.92)); backdrop-filter: blur(20px); border-radius: 35px; padding: 25px; max-width: 90%; width: 320px; text-align: center; border: 3px solid #d4af37; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+    .prayer-popup h3 { color: #2e7d32; margin-bottom: 15px; font-size: 1.3rem; }
+    .prayer-popup button { background: #2e7d32; color: white; border: none; border-radius: 25px; padding: 10px 20px; margin: 10px 5px; cursor: pointer; font-weight: bold; }
+    .splash-screen { position: fixed; inset: 0; background: linear-gradient(145deg, #0a1f0a, #0d1a0d); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; }
+    .splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .splash-logo { font-size: 4rem; color: #d4af37; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+    .splash-title { font-size: 2rem; font-weight: 800; color: #f9e076; margin-bottom: 20px; }
+    .progress-bar { width: 220px; height: 8px; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden; margin-top: 15px; }
+    .progress-fill { width: 0%; height: 100%; background: #d4af37; transition: width 0.3s ease; }
+    .splash-status { margin-top: 15px; font-size: 0.85rem; color: #d4af37; text-align: center; min-height: 50px; }
+    .status-text { display: inline-block; background: rgba(0,0,0,0.5); padding: 4px 12px; border-radius: 20px; }
+    .day-progress { text-align: center; background: #ece0ce; padding: 8px; border-radius: 20px; margin-bottom: 10px; font-weight: bold; font-size: 1rem; }
+    .quran-text { font-family: 'Amiri Quran', serif; font-size: 1rem; line-height: 1.9; color: #1a3a1a; }
+    .info-box { background: #e8dcc8; border-radius: 20px; padding: 12px; margin: 15px 0; border-right: 5px solid #d4af37; font-size: 0.85rem; }
+    .sunnah-step { margin-bottom: 12px; padding-right: 10px; border-right: 2px solid #b8945a; }
+    .notification-badge { position: relative; }
+    .badge-dot { position: absolute; top: -3px; right: -3px; width: 10px; height: 10px; background: #f44336; border-radius: 50%; border: 1px solid white; display: none; }
+    .input-field { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #b8945a; border-radius: 25px; background: #fffef7; font-family: 'Cairo', sans-serif; font-size: 1rem; text-align: right; }
+    .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #b8945a; }
+    .toggle-switch { width: 50px; height: 24px; background: #ccc; border-radius: 30px; position: relative; cursor: pointer; transition: 0.3s; }
+    .toggle-switch.active { background: #2e7d32; }
+    .toggle-switch::after { content: ""; width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; right: 4px; transition: 0.3s; }
+    .toggle-switch.active::after { right: 26px; }
+    .developer-card { background: linear-gradient(145deg, #1e3a1e, #0d2a0d); color: #f5e7c4; padding: 15px; border-radius: 25px; text-align: center; margin-top: 15px; cursor: pointer; transition: 0.2s; }
+    .footer-links { display: flex; justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
+    .footer-link { color: #b8945a; text-decoration: none; font-size: 0.7rem; cursor: pointer; }
+    .scroll-content { max-height: 500px; overflow-y: auto; padding: 5px; }
+    .notification-card { background: #fff6e8; border-radius: 20px; padding: 12px; margin: 10px 0; border: 1px solid #d4af37; cursor: pointer; }
+    .sub-title { font-weight: 800; color: #1b5e20; margin: 15px 0 8px; font-size: 1rem; border-right: 4px solid #d4af37; padding-right: 10px; }
+    .reminder-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10005; max-width: 340px; width: 90%; animation: fadeIn 0.3s ease; background: transparent; }
+    @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -60%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+    .reminder-popup .glass-card { text-align: center; padding: 20px; margin: 0; box-shadow: 0 25px 40px -8px rgba(0,0,0,0.5); }
+    .hadith-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10006; max-width: 360px; width: 90%; animation: fadeIn 0.3s ease; background: transparent; }
+    .hadith-popup .glass-card { text-align: center; padding: 20px; margin: 0; box-shadow: 0 25px 40px -8px rgba(0,0,0,0.5); }
+    .hadith-text { font-size: 1rem; line-height: 1.7; margin: 15px 0; }
+    .close-hadith { background: #2e7d32; color: white; border: none; border-radius: 25px; padding: 8px 20px; margin-top: 10px; cursor: pointer; font-weight: bold; width: auto; }
+
+    /* ===== البث المباشر ===== */
+    .live-status { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; font-weight: 800; font-size: 0.95rem; }
+    .live-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; color: #fff; background: #b33f2f; }
+    .live-badge .live-dot { width: 9px; height: 9px; border-radius: 50%; background: #fff; animation: livePulse 1.2s infinite; }
+    .live-badge.offline { background: #7a6a55; }
+    .live-badge.offline .live-dot { animation: none; opacity: 0.6; }
+    @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+    .live-frame-wrap { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 22px; overflow: hidden; border: 2px solid #d4af37; box-shadow: 0 6px 0 #6b4f2a; }
+    .live-frame-wrap iframe, .live-frame-wrap video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; object-fit: contain; }
+    .live-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: rgba(0,0,0,0.65); color: #f5d742; text-align: center; padding: 15px; font-size: 0.9rem; pointer-events: none; }
+    .live-overlay i { font-size: 2rem; }
+    .live-overlay.hidden { display: none; }
+    .live-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; height: 100%; color: #d4af37; text-align: center; padding: 15px; font-size: 0.9rem; }
+    .live-empty i { font-size: 2.5rem; }
+    .live-title { text-align: center; margin: 12px 0 4px; font-weight: 800; font-size: 1rem; color: #2c4b1e; }
+    .live-desc { text-align: center; font-size: 0.8rem; color: #5a4328; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+<div class="splash-screen" id="splashScreen">
+  <div style="text-align:center;">
+    <div class="splash-logo">🕌</div>
+    <div class="splash-title">الدوحة المحمدية</div>
+    <div class="progress-bar"><div class="progress-fill" id="splashProgress"></div></div>
+    <div class="splash-status"><span class="status-text" id="splashStatus">🔄 جاري التحميل...</span></div>
+  </div>
+</div>
+
+<div id="prayerPopupOverlay" class="custom-alert-overlay" style="display: none; z-index: 10002;">
+  <div class="prayer-popup">
+    <i class="fas fa-praying-hands" style="font-size: 3rem; color: #d4af37;"></i>
+    <h3>هل صليت على النبي اليوم؟</h3>
+    <p>اللهم صل وسلم وبارك على سيدنا محمد</p>
+    <button id="prayerYesBtn">✅ نعم</button>
+    <button id="prayerRemindBtn">⏰ ذكرني لاحقًا</button>
+  </div>
+</div>
+
+<div id="reminderPopup" class="reminder-popup" style="display: none;">
+  <div class="glass-card">
+    <i class="fas fa-bell" style="font-size: 2rem; color: #d4af37; margin-bottom: 10px;"></i>
+    <h3 id="reminderTitle" style="color: #2e7d32;">تذكير</h3>
+    <p id="reminderMessage" style="margin: 10px 0;"></p>
+    <button id="closeReminderBtn" class="save-btn" style="margin-top: 10px; padding: 8px 20px; width: auto;">حسنًا</button>
+  </div>
+</div>
+
+<div id="hadithPopup" class="hadith-popup" style="display: none;">
+  <div class="glass-card">
+    <i class="fas fa-star-of-life" style="font-size: 2rem; color: #d4af37; margin-bottom: 10px;"></i>
+    <h3 style="color: #2e7d32;">تذكير بالأيام العشر</h3>
+    <p class="hadith-text">عن عبد الله بن عمر رضي الله عنهما، عن النبي ﷺ قال: <strong>«مَا مِنْ أَيَّامٍ أَعْظَمُ عِنْدَ اللهِ، وَلَا أَحَبُّ إِلَيْهِ الْعَمَلُ فِيهِنَّ مِنْ هَذِهِ الْأَيَّامِ الْعَشْرِ، فَأَكْثِرُوا فِيهِنَّ مِنَ التَّهْلِيلِ، وَالتَّكْبِيرِ، وَالتَّحْمِيدِ»</strong> (رواه أحمد).</p>
+    <button id="closeHadithBtn" class="close-hadith">حسنًا</button>
+  </div>
+</div>
+
+<div class="app-wrapper">
+  <div class="datetime-bar">
+    <div class="datetime-item"><i class="fas fa-calendar-alt"></i><span id="gregorianDate"></span></div>
+    <div class="datetime-item"><i class="fas fa-moon"></i><span id="hijriDate"></span></div>
+    <div class="current-time" id="notificationBellBtn"><i class="fas fa-bell"></i> <span id="currentTime"></span></div>
+  </div>
+
+  <div id="loginScreen" class="glass-card">
+    <div style="text-align:center; margin-bottom:20px;"><div style="font-size:2rem;">﷽</div><h1>الدوحة المحمدية</h1><p style="color:#5a4328;">تسجيل الدخول</p></div>
+    <div id="loginForm"><input type="email" id="loginEmail" class="input-field" placeholder="البريد الإلكتروني" dir="ltr"><input type="password" id="loginPassword" class="input-field" placeholder="كلمة المرور" dir="ltr"><button class="save-btn" id="doLoginBtn">تسجيل الدخول</button><button class="profile-btn-outline" id="showRegisterBtn">إنشاء حساب</button></div>
+    <div id="registerForm" class="hidden"><input type="text" id="regName" class="input-field" placeholder="الاسم"><input type="email" id="regEmail" class="input-field" placeholder="البريد"><input type="password" id="regPassword" class="input-field" placeholder="كلمة المرور"><button class="save-btn" id="doRegisterBtn">إنشاء حساب</button><button class="profile-btn-outline" id="showLoginBtn">لديك حساب؟ تسجيل دخول</button></div>
+  </div>
+
+  <div id="levelsScreen" class="glass-card hidden"><div style="text-align:center;"><div style="font-size:1.5rem;">﷽</div><h1>المستويات الروحية</h1></div><div id="levelsContainer"></div></div>
+  <div id="tablesScreen" class="glass-card hidden"><div class="screen-header"><button class="back-btn" id="backFromTablesBtn"><i class="fas fa-arrow-right"></i></button><div class="screen-title" id="tableScreenTitle"></div></div><div class="day-progress">اليوم <span id="currentDayDisplay">1</span> من <span id="totalDaysDisplay">100</span></div><div id="tableWrapper"></div><button class="save-btn" id="saveMuhasabaBtn">💾 حفظ اليوم</button></div>
+
+  <div id="adhkarMainScreen" class="glass-card hidden"><div style="text-align:center;"><div style="font-size:1.5rem;">﷽</div><h2>📿 الأذكار والسنن والشمائل</h2></div><div class="vertical-buttons"><button class="vertical-adhkar-btn" data-page="morning">🌅 أذكار الصباح (كاملة)</button><button class="vertical-adhkar-btn" data-page="evening">🌙 أذكار المساء (كاملة)</button><button class="vertical-adhkar-btn" data-page="sunnah">📖 السنن الحياتية والإرشادات (كاملة)</button><button class="vertical-adhkar-btn" data-page="shamail">⭐ الشمائل المحمدية (كاملة)</button></div></div>
+  <div id="morningPage" class="glass-card hidden"><div class="screen-header"><button class="back-btn backFromAdhkar"><i class="fas fa-arrow-right"></i></button><div class="screen-title">أذكار الصباح (كاملة)</div></div><div class="adhkar-page"><div class="content quran-text scroll-content" id="morningContent"></div></div></div>
+  <div id="eveningPage" class="glass-card hidden"><div class="screen-header"><button class="back-btn backFromAdhkar"><i class="fas fa-arrow-right"></i></button><div class="screen-title">أذكار المساء (كاملة)</div></div><div class="adhkar-page"><div class="content quran-text scroll-content" id="eveningContent"></div></div></div>
+  <div id="sunnahPage" class="glass-card hidden"><div class="screen-header"><button class="back-btn backFromAdhkar"><i class="fas fa-arrow-right"></i></button><div class="screen-title">السنن الحياتية والإرشادات (كاملة)</div></div><div class="adhkar-page"><div class="content scroll-content" id="sunnahContent"></div></div></div>
+  <div id="shamailPage" class="glass-card hidden"><div class="screen-header"><button class="back-btn backFromAdhkar"><i class="fas fa-arrow-right"></i></button><div class="screen-title">الشمائل المحمدية (كاملة)</div></div><div class="adhkar-page"><div class="content quran-text scroll-content" id="shamailContent"></div></div></div>
+
+  <!-- البث المباشر (يحل محل قسم المناهج/الدورات) -->
+  <div id="liveScreen" class="glass-card hidden">
+    <div class="screen-header">
+      <button class="back-btn" id="backFromLive"><i class="fas fa-arrow-right"></i></button>
+      <div class="screen-title">📡 البث المباشر</div>
+    </div>
+    <div class="live-status"><span class="live-badge offline" id="liveBadge"><span class="live-dot"></span><span id="liveBadgeText">جاري التحقق...</span></span></div>
+    <div class="live-frame-wrap" id="liveFrameWrap"></div>
+    <div class="live-title" id="liveTitle"></div>
+    <div class="live-desc" id="liveDesc"></div>
+    <button class="save-btn" id="liveRefreshBtn"><i class="fas fa-rotate"></i> تحديث</button>
+  </div>
+
+  <div id="notificationsScreen" class="glass-card hidden"><div class="screen-header"><button class="back-btn" id="backFromNotificationsBtn"><i class="fas fa-arrow-right"></i></button><div class="screen-title">📢 الإشعارات</div></div><div id="notificationsList"></div></div>
+  <div id="notificationDetailScreen" class="glass-card hidden"><div class="screen-header"><button class="back-btn" id="backFromNotificationDetail"><i class="fas fa-arrow-right"></i></button><div class="screen-title" id="notificationDetailTitle"></div></div><div class="content scroll-content" id="notificationDetailBody"></div></div>
+
+  <div id="profileScreen" class="glass-card hidden"><div style="text-align:center;"><div style="font-size:1.5rem;">﷽</div><h2>حسابي</h2></div><div class="profile-header"><div class="profile-avatar"><i class="fas fa-user"></i></div><div><h2 id="profileName">مستخدم</h2><p id="profileEmail"></p></div></div><button class="profile-btn" id="editProfileBtn">✏️ تعديل الملف</button><button class="profile-btn" id="settingsBtn">⚙️ الإعدادات</button><button class="profile-btn" id="guidelinesBtn">📘 الإرشادات</button><button class="profile-btn" id="privacyBtn">🔒 سياسة الخصوصية</button><button class="profile-btn" id="copyrightBtn">© حقوق النشر</button><button class="profile-btn" id="developerBtn">👨‍💻 المطور</button><button class="profile-btn-outline" id="logoutBtn2">🚪 تسجيل خروج</button><div class="footer-links"><span class="footer-link" id="privacyFooterLink">سياسة الخصوصية</span><span class="footer-link" id="copyrightFooterLink">حقوق النشر</span><span class="footer-link" id="developerFooterLink">المطور</span></div></div>
+  <div id="editProfileScreen" class="glass-card hidden"><div class="screen-header"><button class="back-btn" id="backFromEditProfile"><i class="fas fa-arrow-right"></i></button><div class="screen-title">تعديل الملف</div></div><input type="text" id="editUserName" class="input-field" placeholder="الاسم"><button class="save-btn" id="saveProfileBtn">حفظ</button></div>
+  <div id="settingsScreen" class="glass-card hidden"><div class="screen-header"><button class="back-btn" id="backFromSettings"><i class="fas fa-arrow-right"></i></button><div class="screen-title">الإعدادات</div></div><div class="setting-item"><span>🔔 الإشعارات</span><div class="toggle-switch" id="notifToggle"></div></div><div class="setting-item"><span>🌙 الوضع الليلي</span><div class="toggle-switch" id="darkModeToggle"></div></div><div class="setting-item"><span>📖 خط القرآن</span><div class="toggle-switch" id="quranFontToggle"></div></div><div class="setting-item" style="flex-direction:column; align-items:stretch; gap:8px;"><span>📲 إشعارات الهاتف (تصلك والتطبيق مغلق)</span><span id="pushStatusText" style="font-size:0.75rem;"></span><button class="save-btn" id="pushToggleBtn" style="margin-top:0;">تفعيل</button></div></div>
+  <div id="guidelinesScreen" class="glass-card hidden"><div class="screen-header"><button class="back-btn" id="backFromGuidelines"><i class="fas fa-arrow-right"></i></button><div class="screen-title">الإرشادات</div></div><div class="scroll-content" id="guidelinesContent"></div></div>
+  <div id="privacyScreen" class="glass-card hidden"><div class="screen-header"><button class="back-btn backFromPrivacy"><i class="fas fa-arrow-right"></i></button><div class="screen-title">سياسة الخصوصية</div></div><div class="content scroll-content" id="privacyContent"></div></div>
+  <div id="copyrightScreen" class="glass-card hidden"><div class="screen-header"><button class="back-btn backFromCopyright"><i class="fas fa-arrow-right"></i></button><div class="screen-title">حقوق النشر</div></div><div class="content scroll-content" id="copyrightContent"></div></div>
+  <div id="developerScreen" class="glass-card hidden"><div class="screen-header"><button class="back-btn backFromDeveloper"><i class="fas fa-arrow-right"></i></button><div class="screen-title">المطور</div></div><div class="developer-card" id="facebookLinkBtn"><i class="fab fa-facebook" style="font-size:3rem;"></i><h3>عبدالرحمن مصطفى</h3><p>مطور ويب وتطبيقات</p><p style="color:#d4af37;">تابعني على فيسبوك</p><p>الإصدار 3.0</p><p>للاستفسارات: <strong>01141056548</strong></p></div></div>
+
+  <div class="bottom-nav">
+    <button class="nav-item" data-screen="levels"><i class="fas fa-layer-group"></i><span>المستويات</span></button>
+    <button class="nav-item" data-screen="adhkar"><i class="fas fa-book-open"></i><span>الأذكار</span></button>
+    <button class="nav-item" data-screen="live"><i class="fas fa-video"></i><span>البث المباشر</span></button>
+    <button class="nav-item" data-screen="notifications"><div class="notification-badge"><i class="fas fa-bell"></i><span id="notifDot" class="badge-dot"></span></div><span>إشعارات</span></button>
+    <button class="nav-item" data-screen="profile"><i class="fas fa-user"></i><span>حسابي</span></button>
+  </div>
+</div>
+
+<script>
+  const supabaseClient = window.supabase.createClient(
+    "https://pxgrawollyqwixgupnrx.supabase.co",
+    "sb_publishable_oJku4kOAEJzWfiHiduzsJw_bawZT0NO"
+  );
+  const SOUND_URL = "https://d.top4top.io/m_3779rw3af0.mp3";
+  const TEN_DAYS_SOUND_URL = "https://i.top4top.io/m_3795qv8u60.mp3";
+
+  // ===== إعدادات البث المباشر =====
+  // الطريقة 1 (الأسهل): ضع رابط البث هنا (يوتيوب / فيسبوك / أي رابط تضمين https)
+  const LIVE_STREAM_URL = "";
+  const LIVE_STREAM_TITLE = "البث المباشر";
+  // الطريقة 2 (تحكم من لوحة Supabase): أنشئ جدول live_streams بالأعمدة:
+  //   id, title (text), description (text), url (text), is_live (bool), created_at (timestamptz)
+  // وفعّل سياسة قراءة (SELECT) للمستخدمين المسجلين. يُعرض أحدث صف is_live = true.
+
+  // ================== النصوص الكاملة (بدون أي اختصار) ==================
+  const MORNING_FULL = `<div class="quran-text"><strong>【أذكار الصباح كاملة】</strong><br><br>
+﴿بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ * ٱلۡحَمۡدُ لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ * ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ * مَٰلِكِ يَوۡمِ ٱلدِّينِ * إِيَّاكَ نَعۡبُدُ وَإِيَّاكَ نَسۡتَعِينُ * ٱهۡدِنَا ٱلصِّرَٰطَ ٱلۡمُسۡتَقِيمَ * صِرَٰطَ ٱلَّذِينَ أَنۡعَمۡتَ عَلَيۡهِمۡ غَيۡرِ ٱلۡمغضُوبِ عَلَيۡهِمۡ وَلَا ٱلضَّآلِّينَ *﴾ (مرة واحدة)<br><br>
+﴿اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ وَلاَ يَؤُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ﴾ (مرة واحدة)<br><br>
+﴿ءَامَنَ ٱلرَّسُولُ بِمَآ أُنزِلَ إِلَيۡهِ مِن رَّبِّهِۦ وَٱلۡمُؤۡمِنُونَۚ كُلٌّ ءَامَنَ بِٱللَّهِ وَمَلَٰٓئِكَتِهِۦ وَكُتُبِهِۦ وَرُسُلِهِۦ لَا نُفَرِّقُ بَيۡنَ أَحَدٖ مِّن رُّسُلِهِۦۚ وَقَالُواْ سَمِعۡنَا وَأَطَعۡنَاۖ غُفۡرَانَكَ رَبَّنَا وَإِلَيۡكَ ٱلۡمَصِيرُ * لَا يُكَلِّفُ ٱللَّهُ نَفۡسًا إِلَّا وُسۡعَهَاۚ لَهَا مَا كَسَبَتۡ وَعَلَيۡهَا مَا ٱكۡتَسَبَتۡۗ رَبَّنَا لَا تُؤَاخِذۡنَآ إِن نَّسِينَآ أَوۡ أَخۡطَأۡنَاۚ رَبَّنَا وَلَا تَحۡمِلۡ عَلَيۡنَآ إِصۡرٗا كَمَا حَمَلۡتَهُۥ عَلَى ٱلَّذِينَ مِن قَبۡلِنَاۚ رَبَّنَا وَلَا تُحَمِّلۡنَا مَا لَا طَاقَةَ لَنَا بِهِۦۖ وَٱعۡفُ عَنَّا وَٱغۡفِرۡ لَنَا وَٱرۡحَمۡنَآۚ أَنتَ مَوۡلَىٰنَا فَٱنصُرۡنَا عَلَى ٱلۡقَوۡمِ ٱلۡكَٰفِرِينَ﴾ (مرة واحدة)<br><br>
+{ (قُلۡ هُوَ ٱللَّهُ أَحَدٌ * ٱللَّهُ ٱلصَّمَدُ * لَمۡ يَلِدۡ وَلَمۡ يُولَدۡ * وَلَمۡ يَكُن لَّهُۥ كُفُوًا أَحَدُ) }<br>
+{ (قُلۡ أَعُوذُ بِرَبِّ ٱلۡفَلَقِ * مِن شَرِّ مَا خَلَقَ * وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ * وَمِن شَرِّ ٱلنَّفَّٰثَٰتِ فِي ٱلۡعُقَدِ * وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ) }<br>
+{ (قُلۡ أَعُوذُ بِرَبِّ ٱلنَّاسِ * مَلِكِ ٱلنَّاسِ * إِلَٰهِ ٱلنَّاسِ * مِن شَرِّ ٱلۡوَسۡوَاسِ ٱلۡخَنَّاسِ * ٱلَّذِي يُوَسۡوِسُ فِي صُدُورِ ٱلنَّاسِ * مِنَ ٱلۡجِنَّةِ وَٱلنَّاسِ) } (تُقرأ السور الثلاث بالتتابع 3 مرات)<br><br>
+<strong>﴿وَقُل رَّبِّ أَعُوذُ بِكَ مِنْ هَمَزَاتِ الشَّيَاطِينِ * وَأَعُوذُ بِكَ رَبِّ أَن يَحْضُرُونِ﴾ (3 مرات)</strong><br><br>
+<strong>﴿أَفَحَسِبۡتُمۡ أَنَّمَا خَلَقۡنَٰكُمۡ عَبَثٗا وَأَنَّكُمۡ إِلَيۡنَا لَا تُرۡجَعُونَ * فَتَعَٰلَى ٱللَّهُ ٱلۡمَلِكُ ٱلۡحَقُّۖ لَآ إِلَٰهَ إِلَّا هُوَ رَبُّ ٱلۡعَرۡشِ ٱلۡكَرِيمِ * وَمَن يَدۡعُ مَعَ ٱللَّهِ إِلَٰهًا ءَاخَرَ لَا بُرۡهَٰنَ لَهُۥ بِهِۦ فَإِنَّمَا حِسَابُهُۥ عِندَ رَبِّهِۦٓۚ إِنَّهُۥ لَا يُفۡلِحُ ٱلۡكَٰفِرُونَ * وَقُل رَّبِّ ٱغۡفِرۡ وَٱرۡحَمۡ وَأَنتَ خَيۡرُ ٱلرَّٰحِمِينَ﴾ (مرة واحدة)</strong><br><br>
+(فسبحانَ اللهُ حينَ تُمسونَ وحِينَ تُصبِحُونَ ولهُ الحمدُ في السَّماواتِ والارضِ وعَشِيَّاً وحِينَ تُظهِرونَ يُخرِجُ الحَيَّ مِنَ الميِّتِ ويُخرِجُ الميتَ مِنَ الحيِّ ويُحيي الأرضَ بَعدَ مَوتِها وكذلكِ تُخرَجُون) (مرة واحدة)<br>
+(اعوذُ باللهِ السميعِ العليمِ منَ الشيطانِ الرَّجيم) (3 مرات)<br>
+﴿ لَوْ أَنزَلْنَا هَٰذَا الْقُرْآنَ عَلَىٰ جَبَلٍ لَّرَأَيْتَهُ خَاشِعًا مُّتَصَدِّعًا مِّنْ خَشْيَةِ اللَّهِ ۚ وَتِلْكَ الْأَمْثَالُ نَضْرِبُهَا لِلنَّاسِ لَعَلَّهُمْ يَتَفَكَّرُونَ * هُوَ اللَّهُ الَّذِي لا إِلَهَ إِلاَّ هُوَ عَالِمُ الْغَيْبِ وَالشَّهَادَةِ هُوَ الرَّحْمَنُ الرَّحِيمُ * هُوَ اللَّهُ الَّذِي لا إِلَهَ إِلاَّ هُوَ الْمَلِكُ الْقُدُّوسُ السَّلامُ الْمُؤْمِنُ الْمُهَيْمِنُ الْعَزِيزُ الْجَبَّارُ الْمُتَكَبِّرُ سُبْحَانَ اللَّهِ عَمَّا يُشْرِكُونَ * هُوَ اللَّهُ الْخَالِقُ الْبَارِئُ الْمُصَوِّرُ لَهُ الأَسْمَاء الْحُسْنَى يُسَبِّحُ لَهُ مَا فِي السَّمَاوَاتِ وَالأَرْضِ وَهُوَ الْعَزِيزُ الْحَكِيمُ﴾ (مرة واحدة)<br>
+(سلام على نوح في العالمين انا كذلك نجزي المحسنين إنه من عبادنا المؤمنين) (مرة واحدة)<br>
+(أَعـوذُ بِكَلِمـاتِ اللّهِ التّـامّـاتِ مِنْ شَـرِّ ما خَلَـق) (3 مرات)<br>
+(بِسـمِ اللهِ الذي لا يَضُـرُّ مَعَ اسمِـهِ شَيءٌ في الأرْضِ وَلا في السّمـاءِ وَهـوَ السّمـيعُ العَلـيم) (3 مرات)<br>
+(اللهم اني أصبحت منك في نعمة وعافية وستر فاتمم نعمتك على وعافيتك وسترك في الدنيا الآخرة) (3 مرات)<br>
+(اللّهُـمَّ إِنِّـي أَصْبَـحْتُ أُشْـهِدُك وَأُشْـهِدُ حَمَلَـةَ عَـرْشِـك وَمَلائِكَتِك وَجَمـيعَ خَلْـقِك أَنَّـكَ أَنْـتَ اللهُ لا إلهَ إلاّ أَنْـتَ وَحْـدَكَ لا شَريكَ لَـك وَأَنَّ مُحَمّـداً عَبْـدُكَ وَرَسـولُـك) (4 مرات)<br>
+(الحمد لله رب العالمين حمدا يوافي نعمه ويكافئ مزيده) (3 مرات)<br>
+(آمنت بالله العظيم وكفرت بالجبت والطاغوت واستمسكت بالعروة الوثقى لا انفصام لها والله سميع عليم) (3 مرات)<br>
+(رَضيـتُ بِاللهِ رَبَّـاً وَبِالإسْلامِ ديـناً وَبِمُحَـمَّدٍ صلى الله عليه وسلم نَبِيّـاً) (3 مرات)<br>
+(حَسْبِـيَ اللّهُ لا إلهَ إلاّ هُوَ عَلَـيهِ تَوَكَّـلتُ وَهُوَ رَبُّ العَرْشِ العَظـيم) (7 مرات)<br>
+(اللهم صل على سيدنا محمد وآله وصحبه وسلم) (10 مرات)<br>
+(اللهم إني أسألك من فجاءة الخير وأعوذ بك من فجاءة الشر، اللهم أنت ربي لا إله إلا أنت خلقتني وأنا عبدك وأنا على عهدك ووعدك ما استطعت أعوذ بك من شر ما صنعت أبوء لك بنعمتك على وأبوء بذنبي فاغفر لي فإنه لايغفر الذنوب إلا أنت)<br>
+(اللهم أنت ربي لا إله إلا أنت عليك توكلت وأنت رب العرش العظيم)<br>
+(ما شاء الله كان وما لم يشأ لم يكن ولا حول ولا قوة إلا بالله العلي العظيم)<br>
+(أعلمٌ أن الله على كل شئ قدير وأن الله قد أحاط بكل شئ علما)<br>
+(اللهم إني أعوذ بك من شر نفسي ومن شر كل دابة أنت آخذ بناصيتها إن ربي على صراط مستقيم)<br>
+(يا حي ياقيوم برحمتك أستغيث ومن عذابك أستجير أصلح لي شأني كله ولا تكلني إلى نفسي أو إلى أحد من خلقك طرفة عين)<br>
+(اللهم إني أعوذ بك من الهم والحزن وأعوذ بك من العجز والكسل وأعوذ بك من الجبن والبخل وأعوذ بك من غلبة الدين ومن قهر الرجال)<br>
+(اللهم إني أسألك العافية في الدنيا والآخرة، اللهم إني أسألك العفو والعافية والمعافات الدائمه في ديني ودنياي وأهلي ومالي، اللهم أستر عوراتي وآمن روعاتي اللهم أحفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي وأعوذ بعظمتك أن أغتال من تحتي)<br>
+(اللهم أنت خلقتني وأنت تهديني وأنت تطعمني وتسقيني وأنت تميتني وأنت تحييني وأنت على كل شئ قدير)<br>
+أصبحنا على فطرة الاسلام وعلى كلمة الاخلاص وعلى دين سيدنا محمد وآله وصحبه وسلم وعلى ملة ابينا ابراهيم حنيفا مسلما وما كان من المشركين.<br>
+اللهم بك أصبحنا وبك أمسينا وبك نحيا وبك نموت وعليك نتوكل وإليك النشور، أصبحنا وأصبح الملك لله والحمد لله رب العالمين.<br>
+(اللهم إني أسألك خير هذا اليوم فتحه ونصره ونوره وبركته وهداه، اللهم إني أسألك خير هذا اليوم وخير ما فيه وخير ما قبله وخير ما بعده وأعوذ بك من شر هذا اليوم وشر ما فيه وشر ما قبله وشر ما بعده)<br>
+(اللهم ما أصبح بي من نعمة أو بأحد من خلقك فمنك وحدك لا شريك لك فلك الحمد ولك الشكر على ذلك)<br>
+(سبحان الله وبحمده عدد خلقه ورضا نفسه وزنة عرشه ومداد كلماته) (3 مرات)<br>
+(سبحان الله العظيم وبحمده عدد خلقه ورضا نفسه وزنة عرشه ومداد كلماته) (3 مرات)<br>
+(سبحان الله عدد ما خلق في السماء سبحان الله عدد ما خلق في الارض سبحان الله عدد ما بين ذلك سبحان الله عدد ماهو خالق)<br>
+(الحمد لله عدد ما خلق في السماء الحمد لله عدد ما خلق في الارض الحمد لله عدد ما بين ذلك الحمد لله عدد ماهو خالق)<br>
+(لا إله إلا الله عدد ما خلق في السماء، لا إله إلا الله عدد ما خلق في الارض، لا إله إلا الله عدد ما بين ذلك، لا إله إلا الله عدد ماهو خالق)<br>
+(الله أكبر عدد ما خلق في السماء، الله أكبر عدد ما خلق في الارض، الله أكبر عدد ما بين ذلك، الله أكبر عدد ماهو خالق)<br>
+(لا حول ولا قوة إلا بالله العلي العظيم عدد ما خلق في السماء، لا حول ولا قوة إلا بالله العلي العظيم عدد ما خلق في الارض، لا حول ولا قوة إلا بالله العلي العظيم عدد ما بين ذلك، لا حول ولا قوة إلا بالله العلي العظيم عدد ماهو خالق)<br>
+(لا إله إلا الله وحده لا شريك له، له الملك وله الحمد يحي ويميت وهو على كل شئ قدير عدد كل زرة ألف مرة) (10 مرات)<br>
+(اللهم صل وسلم على سيدنا محمد مفتاح باب رحمة الله عدد مافي علم الله صلاة وسلام دائمين بدوام ملك الله وعلى آله وصحبه عدد كل زرة ألف مره) (10 مرات)<br>
+📿 ثم تنفث في كفيك وتمرر على كل جسدك من أعلى لأسفل ثم من الأمام إلى الخلف</div>`;
+
+  const EVENING_FULL = `<div class="quran-text"><strong>【أذكار المساء كاملة】</strong><br><br>
+﴿بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ (1) ٱلۡحَمۡدُ لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ (2) ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ (3) مَٰلِكِ يَوۡمِ ٱلدِّينِ (4) إِيَّاكَ نَعۡبُدُ وَإِيَّاكَ نَسۡتَعِينُ (5) ٱهۡدِنَا ٱلصِّرَٰطَ ٱلۡمُسۡتَقِيمَ (6) صِرَٰطَ ٱلَّذِينَ أَنۡعَمۡتَ عَلَيۡهِمۡ غَيۡرِ ٱلۡمغضُوبِ عَلَيۡهِمۡ وَلَا ٱلضَّآلِّينَ (7)﴾ (مرة واحدة)<br><br>
+﴿اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ وَلَا يَؤُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ﴾ (مرة واحدة)<br><br>
+﴿ءَامَنَ ٱلرَّسُولُ بِمَآ أُنزِلَ إِلَيۡهِ مِن رَّبِّهِۦ وَٱلۡمُؤۡمِنُونَۚ كُلٌّ ءَامَنَ بِٱللَّهِ وَمَلَٰٓئِكَتِهِۦ وَكُتُبِهِۦ وَرُسُلِهِۦ لَا نُفَرِّقُ بَيۡنَ أَحَدٖ مِّن رُّسُلِهِۦۚ وَقَالُواْ سَمِعۡنَا وَأَطَعۡنَاۖ غُفۡرَانَكَ رَبَّنَا وَإِلَيۡكَ ٱلۡمَصِيرُ * لَا يُكَلِّفُ ٱللَّهُ نَفۡسًا إِلَّا وُسۡعَهَاۚ لَهَا مَا كَسَبَتۡ وَعَلَيۡهَا مَا ٱكۡتَسَبَتۡۗ رَبَّنَا لَا تُؤَاخِذۡنَآ إِن نَّسِينَآ أَوۡ أَخۡطَأۡنَاۚ رَبَّنَا وَلَا تَحۡمِلۡ عَلَيۡنَآ إِصۡرٗا كَمَا حَمَلۡتَهُۥ عَلَى ٱلَّذِينَ مِن قَبۡلِنَاۚ رَبَّنَا وَلَا تُحَمِّلۡنَا مَا لَا طَاقَةَ لَنَا بِهِۦۖ وَٱعۡفُ عَنَّا وَٱغۡفِرۡ لَنَا وَٱرۡحَمۡنَآۚ أَنتَ مَوۡلَىٰنَا فَٱنصُرۡنَا عَلَى ٱلۡقَوۡمِ ٱلۡكَٰفِرِينَ﴾ (مرة واحدة)<br><br>
+﴿إِنَّ ٱلَّذِينَ ءَامَنُواْ وَعَمِلُواْ ٱلصَّٰلِحَٰتِ كَانَتۡ لَهُمۡ جَنَّٰتُ ٱلۡفِرۡدَوۡسِ نُزُلًا * خَٰلِدِينَ فِيهَا لَا يَبۡغُونَ عَنۡهَا حِوَلٗا * قُل لَّوۡ كَانَ ٱلۡبَحۡرُ مِدَادٗا لِّكَلِمَٰتِ رَبِّي لَنَفِدَ ٱلۡبَحۡرُ قَبۡلَ أَن تَنفَدَ كَلِمَٰتُ رَبِّي وَلَوۡ جِئۡنَا بِمِثۡلِهِۦ مَدَدٗا * قُلۡ إِنَّمَآ أَنَا۠ بَشَرٞ مِّثۡلُكُمۡ يُوحَىٰٓ إِلَيَّ أَنَّمَآ إِلَٰهُكُمۡ إِلَٰهٞ وَٰحِدٞۖ فَمَن كَانَ يَرۡجُواْ لِقَآءَ رَبِّهِۦ فَلۡيَعۡمَلۡ عَمَلٗا صَٰلِحٗا وَلَا يُشۡرِكۡ بِعِبَادَةِ رَبِّهِۦٓ أَحَدَۢا﴾ (مرة واحدة)<br><br>
+﴿لَوْ أَنزَلْنَا هَٰذَا الْقُرْآنَ عَلَىٰ جَبَلٍ لَّرَأَيْتَهُ خَاشِعًا مُّتَصَدِّعًا مِّنْ خَشْيَةِ اللَّهِ ۚ وَتِلْكَ الْأَمْثَالُ نَضْرِبُهَا لِلنَّاسِ لَعَلَّهُمْ يَتَفَكَّرُونَ * هُوَ اللَّهُ الَّذِي لا إِلَهَ إِلاَّ هُوَ عَالِمُ الْغَيْبِ وَالشَّهَادَةِ هُوَ الرَّحْمَنُ الرَّحِيمُ * هُوَ اللَّهُ الَّذِي لا إِلَهَ إِلاَّ هُوَ الْمَلِكُ الْقُدُّوسُ السَّلامُ الْمُؤْمِنُ الْمُهَيْمِنُ الْعَزِيزُ الْجَبَّارُ الْمُتَكَبِّرُ سُبْحَانَ اللَّهِ عَمَّا يُشْرِكُونَ * هُوَ اللَّهُ الْخَالِقُ الْبَارِئُ الْمُصَوِّرُ لَهُ الأَسْمَاء الْحُسْنَى يُسَبِّحُ لَهُ مَا فِي السَّمَاوَاتِ وَالأَرْضِ وَهُوَ الْعَزِيزُ الْحَكِيمُ﴾ (مرة واحدة)<br><br>
+{ (قُلۡ هُوَ ٱللَّهُ أَحَدٌ * ٱللَّهُ ٱلصَّمَدُ * لَمۡ يَلِدۡ وَلَمۡ يُولَدۡ * وَلَمۡ يَكُن لَّهُۥ كُفُوًا أَحَدُ) }<br>
+{ (قُلۡ أَعُوذُ بِرَبِّ ٱلۡفَلَقِ * مِن شَرِّ مَا خَلَقَ * وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ * وَمِن شَرِّ ٱلنَّفَّٰثَٰتِ فِي ٱلۡعُقَدِ * وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ) }<br>
+{ (قُلۡ أَعُوذُ بِرَبِّ ٱلنَّاسِ * مَلِكِ ٱلنَّاسِ * إِلَٰهِ ٱلنَّاسِ * مِن شَرِّ ٱلۡوَسۡوَاسِ ٱلۡخَنَّاسِ * ٱلَّذِي يُوَسۡوِسُ فِي صُدُورِ ٱلنَّاسِ * مِنَ ٱلۡجِنَّةِ وَٱلنَّاسِ) } (تُقرأ 3 مرات بالتتابع)<br><br>
+<strong>شَهِدَ اللَّهُ أَنَّهُ لَا إِلَهَ إِلَّا هُوَ وَالْمَلَائِكَةُ وَأُولُو الْعِلْمِ قَائِمًا بِالْقِسْطِ لَا إِلَهَ إِلَّا هُوَ الْعَزِيزُ الْحَكِيمُ، إِنَّ الدِّينَ عِندَ اللَّهِ الْإِسْلَامُ. (مرة واحدة)</strong><br><br>
+بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ، {حم، تَنزِيلُ الْكِتَابِ مِنَ اللَّهِ الْعَزِيزِ الْعَلِيمِ، غَافِرِ الذَّنبِ وَقَابِلِ التَّوْبِ شَدِيدِ الْعِقَابِ ذِي الطَّولِ ، لَا إِلَهَ إِلَّا هُوَ إِلَيْهِ الْمَصِيرُ}. (ثلاث مرات)<br>
+(لا إله إلا الله وحده لا شريك له، له الملك وله الحمد يحي ويميت وهو على كل شئ قدير) (3 مرات)<br>
+(سبحان الله والحمد لله ولا إله إلا الله والله أكبر) (3 مرات)<br>
+(سبحان الله وبحمده سبحان الله العظيم) (100 مرة)<br>
+(ربنا اغفر لنا وتب علينا إنك أنت التواب الرحيم) (3 مرات)<br>
+(اللهم صل على محمد اللهم صل عليه وسلم) (3 مرات)<br>
+(أعوذ بكلمات الله التامات من شر ما خلق) (3 مرات)<br>
+(بسم الله الذي لا يضر مع اسمه شئ في الارض ولا في السماء وهو السميع العليم) (3 مرات)<br>
+(رضينا بالله ربا وبالاسلام دينا وسيدنا محمد صلى الله عليه وسلم نبيا ورسولا) (3 مرات)<br>
+(بسم الله والحمد لله والخير والشر بمشيئة الله) (3 مرات)<br>
+(آمنا بالله واليوم الآخر تبنا إلى الله باطنا وظاهر) (3 مرات)<br>
+(ياربنا واعف عنا وامح الذي كان منا) (3 مرات)<br>
+(ياذا الجلال والاكرام أمتنا على دين الاسلام) (7 مرات)<br>
+(يا قوي يا متين اكف شر الظالمين) (3 مرات)<br>
+(اصلح الله أمور المسلمين صرف الله شر المؤذين) (3 مرات)<br>
+(ياعلى يا كبير يا عليم يا قدير يا سميع يا بصير يا لطيف يا خبير) (3 مرات)<br>
+(يا فارج الهم يا كاشف الغم يا من لعبده يغفر ويرحم) (3 مرات)<br>
+(استغفر الله رب البرايا استغفر الله من الخطايا) (4 مرات)<br>
+(لا إله إلا الله، لا إله إلا الله) (50 مرة)<br>
+(محمد رسول الله صلى الله عليه وسلم وشرف وكرم ومجد وعظم، ورضى الله عن آل بيته المطهرين، وأصحابه المهتدين والتابعين لهم بإحسان إلى يوم الدين) (مرة واحدة)<br>
+📿 ثم تنفث في كفيك وتمرر على كل جسدك من أعلى لأسفل ثم من الأمام إلى الخلف</div>`;
+
+  const SUNNAH_FULL = `<div class="info-box"><strong>📌 ما هو الإستهلال؟</strong><br>في بداية اليوم نقوم بعمل {استهلال بالصلاة الإبراهيمية}: "اللَّهُمَّ صَلِّ عَلَى سيدنا مُحَمَّدٍ، وَعَلَى آلِ سيدنا مُحَمَّدٍ، كَمَا صَلَّيْتَ عَلَى سيدنا إِبْرَاهِيمَ، وَعَلَى آلِ سيدنا إِبْرَاهِيمَ، وَبَارِكْ عَلَى سيدنا مُحَمَّدٍ، وَعَلَى آلِ سيدنا مُحَمَّدٍ، كَمَا بَارَكْتَ عَلَى سيدنا إِبْرَاهِيمَ، وَعَلَى آلِ سيدنا إِبْرَاهِيمَ، فِي الْعَالَمِينَ إِنَّكَ حَمِيدٌ مَجِيدٌ" (10 مرات). وفي آخر اليوم أيضاً (10 مرات).</div><div class="info-box"><strong>📌 الورد اليومي (الورد العام)</strong><br>• استغفر الله العظيم وأتوب إليه (500 مرة)<br>• اللهم صل وسلم وبارك على سيدنا محمد وآله (500 مرة)<br>• لا إله إلا الله، لا إله إلا الله (500 مرة)<br><em>نصيحة: 200 استغفار الأولى تستشعر ذنوبك التي تعلمها، و 200 للتي نسيتها، و 100 للوقت الذي ضيعته بدون ذكر الله.</em></div><div class="info-box"><strong>📌 سنن الصلاة القبلية والبعدية</strong><br>• ركعتان قبل الصبح • صلاة الضحى (2-8 ركعات) • ركعتين أو أربع قبل الظهر • ركعتين أو أربع بعد الظهر • أربع ركعات قبل العصر • ركعتين أو ست بعد المغرب • بعد العشاء ركعتي الشفع ثم الوتر</div><strong class="sub-title">🌟 سنن النوم التفصيلية</strong><div class="sunnah-step">1. ينفض فراشه: يأخذ داخلة إزاره وينفض بها فراشه</div><div class="sunnah-step">2. يسمي الله: يقول "بسم الله"</div><div class="sunnah-step">3. ينام على الشق الأيمن</div><div class="sunnah-step">4. يضع يده اليمنى تحت خده الأيمن</div><div class="sunnah-step">5. يدعو: "سبحانك اللهم ربي بك وضعت جنبي، وبك أرفعه، إن أمسكت نفسي فاغفر لها، وإن أرسلتها فاحفظها بما تحفظ به عبادك الصالحين"</div><strong class="sub-title">🌅 عند الاستيقاظ</strong><div class="sunnah-step">• دعاء الاستيقاظ: "الحمد لله الذي أحيانا بعد ما أماتنا وإليه النشور"</div><div class="sunnah-step">• يمسح وجهه بيده • يغسل يديه ثلاثاً • يستنشق ثلاث مرات • يستاك (بالسواك أو الفرشاة أو الإصبع)</div><strong class="sub-title">🍽 سنن الأكل والشرب</strong><div class="sunnah-step">• يرضى بأي طعام يقدم إليه ولا يعيبه، إن أعجبه أكله وإن لم يعجبه تركه</div><div class="sunnah-step">• يغسل يديه قبل الأكل وبعده • يسمي الله قبل الأكل: "بسم الله"</div><div class="sunnah-step">• يأكل مما يليه ولا يدور في الطبق • يأكل بأصابعه الثلاث</div><div class="sunnah-step">• لا يأكل متكئاً • يحمد الله بعد الأكل: "الحمد لله الذي أطعمني هذا ورزقنيه من غير حول مني ولا قوة"</div><div class="sunnah-step">• يشرب في ثلاث دفعات مع التسمية والتحميد • يشرب جالساً • يمص الماء مصاً</div><strong class="sub-title">🚪 دخول دورات المياه</strong><div class="sunnah-step">• يدخل بالقدم اليسرى ويقول: "بسم الله، اللهم إني أعوذ بك من الخبث والخبائث"</div><div class="sunnah-step">• يخرج بالقدم اليمنى ويقول: "غفرانك"</div><strong class="sub-title">🕌 دخول المسجد والخروج منه</strong><div class="sunnah-step">• يدخل بالقدم اليمنى: "اللهم افتح لي أبواب رحمتك" ثم يسلم على النبي ﷺ: "السلام عليك يا سيدي يا رسول الله"</div><div class="sunnah-step">• يخرج بالقدم اليسرى: "اللهم إني أسألك من فضلك"</div><strong class="sub-title">🚪 الخروج من المنزل</strong><div class="sunnah-step">• يخرج بالقدم اليمنى ويقول: "بسم الله، توكلت على الله، اللهم إني أعوذ بك أن أضل أو أضل، أو أزل أو أزل، أو أظلم أو أظلم، أو أجهل أو يجهل علي"</div><div class="info-box"><strong>📌 إرشادات عامة</strong><br>• بر الوالدين: إدخال السرور على قلب والديك يومياً.<br>• الإقلاع عن ذنب: اختر ذنباً تريد التخلص منه، فإن انتصرت تضع صح، وإن وقعت فعليك ركعتا توبة.<br>• لماذا نقرأ أذكار الصباح والمساء؟ تحصين يومي، تقي من شر شياطين الجن والإنس، تشرح القلب، تمنع حوادث الدنيا.<br>• سورة يس، الواقعة، الرحمن، الدخان، الملك، السجدة: للتيسير والفتح والحفظ.<br>• جمعها خادم تراب المسلمين، د/ محمد عبدالباري علي</div>`;
+
+  const SHAMAIL_FULL = `<div class="quran-text"><h2 style="color:#1b5e20;">⭐ الشمائل المحمدية ووصف جمال خير البرية ﷺ ⭐</h2><h3 style="color:#2e7d32;">بسم الله الرحمن الرحيم</h3><h4 style="color:#b8945a;">(بعض صيغ الصلاة على سيدنا المختار ﷺ)</h4><p>اللَّهُمَّ صَلِّ عَلَى سيدنا مُحَمَّدٍ وَعَلَى آلِ سيدنا مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى سيدنا إِبْرَاهِيمَ وَعَلَى آلِ سيدنا إِبْرَاهِيمَ وَبَارِكْ عَلَى سيدنا مُحَمَّدٍ وَعَلَى آلِ سيدنا مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى سيدنا إِبْرَاهِيمَ وَعَلَى آلِ سيدنا إِبْرَاهِيمَ فِي الْعَالَمِينَ إِنَّكَ حَمِيدٌ مَجِيدٌ.</p><p>اللهم صل على سيدنا محمد عبدك ونبيك ورسولك النبي الأمي، وعلى آله وأزواجه وذريته وسلم عدد خلقك، ورضا نفسك، وزنة عرشك، ومداد كلماتك.</p><p>اللهم صل على سيدنا محمد وعلى آل سيدنا محمد، صلاة دائمة بدوامِك.</p><p>اللَّهُمَّ صَلِّ عَلَى سيدنا مُحَمَّدٍ وَأَنْزِلْهُ الْمَنْزِلَ الْمُقَرَّبَ مِنْكَ يَوْمَ الْقِيَامَة.</p><p>اللَّهُمَّ صَلِّ عَلَى رُوحِ سيدنا مُحَمَّدٍ فِي الأَرْوَاحِ، وَعَلَى جَسَدِهِ فِي الأَجْسَادِ، وَعَلى قَبْرِهِ فِي القبورِ، اللَّهُمَّ صَلِّ عَلَى سيدنا مُحَمَّدٍ وَعَلَى آلِ سيدنا مُحَمَّد، في الأَوَّلِينَ وَالآخِرِينَ، وَفِي الْمَلأِ الأَعْلَى إِلَى يَوْمِ الْدِّينِ.</p><p>اللَّهُمَّ صَلِّ عَلَى سيدنا مُحَمَّدٍ وَعَلَى آلِ سيدنا مُحَمَّدٍ، صَلاَةً تَكُونُ لَكَ رِضَاءً، وَلِحَقِّهِ أَدَاءً، وَأَعْطِهِ الْوَسِيلَةَ وَالْمَقَامَ الَّذِي وَعَدْتَهُ، وَاجْزِهِ عَنَّا مَا هُوَ أَهْلُهُ، وَاجْزِهِ أَفْضَلَ مَا جَازَيْتَ نَبِيَّاً عَنْ أْمَّتِهِ، وَصَلِّ عَلَيْهِ وَعَلَى جَمِيعِ إِخْوَانِهِ مِنَ النَّبِيِّينَ وَالصَّالِحِينَ، يَا أَرْحَمَ الرَّاحِمِينَ.</p><p>اللَّهُمَّ صَلِّ عَلَى سيدنا مُحَمَّدٍ وَعَلَى آلِ سيدنا مُحَمَّدٍ، حَتَّى لاَ يَبْقَى مِنَ الصَّلاَةِ شَيْءٌ، وَارْحَمْ سيدنا مُحَمَّدٍ وَآلِ سيدنا مُحَمَّدٍ، حَتَّى لاَ يَبْقَى مِنَ الرَّحْمَةِ شَيْءٌ، وَبَارِكْ عَلَى سيدنا مُحَمَّدٍ وَعَلَى آلِ سيدنا مُحَمَّدٍ، حَتَّى لاَ يَبْقَى مِنَ الْبَرَكَةِ شَيْءٌ، وَسَلِّمْ عَلَى سيدنا مُحَمَّدٍ وَعَلَى آلِ سيدنا مُحَمَّدٍ، حَتَّى لاَ يَبْقَى مِنَ السَّلاَمِ شَيْءٌ</p><p>إِنَّ الله وَمَلاَئِكَتَهُ يُصَلُّونَ عَلَى النَّبِّيِّ، يَا أَيُّهَا الَّذِينَ آمَنُوا صَلُّوا عَلَيْهِ وَسَلِّمُوا تَسْلِيماً.</p><p>لَبَّيْكَ اللَّهُمَّ رَبِّي وَسَعْدَيْكَ، صَلَوَاتُ الله الْبَرِّ الرَّحِيمِ، وَالْمَلاَئِكَةِ الْمُقَرَّبِينَ، وَالنَّبِيِّينَ وَالصِّدِّيقِينَ وَالشُّهَدَاءِ وَالصَّالِحِينَ، وَمَا سَبَّحَ لَكَ مِنْ شَيْءٍ يَا رَبَّ الْعَالَمِينَ، عَلَى سَيِّدِنَا مُحَمَّدِ بنِ عَبْدِ الله خَاتِمِ النَّبِيِّينَ وَسَيِّدِ الْمُرْسَلِينَ، وَإِمَامِ الْمُتَّقِينَ وَرَسُولِ رَبِّ الْعَالَمِينَ، الشَّاهِدِ الْبَشِيرِ، الدَّاعِي إِلَيْكَ بِإِذْنِكَ السِّرَاجِ الْمُنِيرِ، وَعَلَيْهِ السَّلاَمُ</p><p>اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ الَّذِي مَلأْتَ قَلْبَهُ مِنْ جَلاَلِكَ، وَعَيْنَهُ مِنْ جَمَالِكَ، فَأَصْبَحَ فَرِحاً مَسْرُوراً، مُؤَيَّداً مَنْصُوراً، وَعَلَى آلِهِ وَأَصْحَابِهِ وَأَوْلاَدِهِ، وَأَزْوَاجِهِ وَذُرِّيَّتِهِ وَأَهْلِ بَيْتِهِ، وَأَصْهَارِهِ وَأَنْصَارِهِ وَأَشْيَاعِهِ وَمُحِبِّيهِ، وَأُمِّتِهِ وَعَلَيْنَا مَعَهُمْ أَجْمَعِينَ يَا أَرْحَمَ الرَّاحِمِينَ، وَسَلِّمْ تَسْلِيماً، وَالْحَمْدُ لله عَلَى ذِلِكَ.</p><hr><h4>(الوصف الظاهري لحضرته ﷺ)</h4><p>إعلموا أن رسول الله ﷺ قد تربع على عرشِ الطهرِ والعفافِ، فهو ﷺ خيارٌ من خيارٍ من خيار، وهو القائلُ عن نفسه "خرجتُ من نكاحٍ ولم أخرجْ من سِفَاح" ﷺ.</p><p>فهو سيدنا ومولانا محمد بن عبد الله بن عبد المطلب بن هَاشم، بن عبـد مَنَاف بن قُصَـيّ بن كِـلاب بن مُـرَّةَ، بن كَعْب بن لُـؤَيّ بن غالِب بن فِـهْر بن مالِك بن النَّضْر بن كِنَانَة، بن خُزَيْمة بن مُدْرِكة بن إلْيَاس بن مُضَر، بن نِزَار بن مَعَدّ بن عَدنان. إلى الخليل إبراهيم عليه السلام.</p><p>أما أمه فهي آمنةُ بنتِ وَهب بن عبدِ منافِ بن زُهرةِ بن كِلاب، ولقد عاش يتيما ﷺ.</p><p>وأما عن أسمائه ﷺ فهي كثيرة، فهو محمدٌ في الأرضِ وأحمدٌ في السماء ﷺ، وهو الماحي، الحاشر، العاقب، المتوكل، المُقَفِّي، نبي التوبة، نبي المرحمة، نبي الملحمة، المختار، المصطفى، الشفيع المشفع، الصادق المصدوق ﷺ.</p><p>أما عن وجهِهِ الشريف، فقد كان وجهُهُ ﷺ مستديراً منيراً، أزهري اللون، أبيض مشرَب بِحُمرة ﷺ، وكان ﷺ أحسنَ الناسِ وجها، كأن الشمسَ تجري في وجهه ﷺ.</p><p>وكان ﷺ إذا سُر استنار وجهَهُ كأنه فَلقةُ قمرﷺ</p><p>أما عن خده الشريف، فقد كان ﷺ أسِيلَ الخدين ، وردي الوجنتين ﷺ.</p><p>وأما عن جبينِهِ الشريف، فقد كان ﷺ واسعَ الجبين، وفي رواية واضحُ الجبين ﷺ.</p><p>وأما عن حاجبيه الشريفين، فقد كان ﷺ أزَجَّ الحاجبين سوابغَ في غيرِ اقتران ﷺ</p><p>وأما عن بصره الشريف، فقد كان ﷺ أدعَجَ العينين، أهدْبَ الأشافر، مشرَبَ العينِ بحُمرة، خافِضَ الطرف، نظرُه إلى الأرضِ أطولُ من نظرهِ إلى السماء، جُل نظرِهِ الملاحظة، إذا التفتَ التفتَ جميعاً ﷺ، وكان ﷺ يرى في الظلامِ كما يرى في النور التام، وكان يرى من خلفِهِ كما يرى من الأمام ﷺ.</p><p>أما عن أُذنِهِ الشريفَةِ ﷺ، فقد كانت أذنُهُ وسَطا ﷺ وكان يَسمعُ بها كل شيئ، وكان ﷺ يسمعُ بها لغةَ الطيورِ والحيوانات، ويسمعُ تسبيحَ الجمادات ﷺ.</p><p>وأما عن أنفِهِ الشريف، فقد كان ﷺ أقنى الأنف ﷺ.</p><p>وأما عن فَمِهِ الشريف، فقد كان ﷺ ضَلِيعَ الفم، أي واسعُ الفم، والعربُ كانت تمدحُ عظيمَ الفَمِّ.</p><p>وكان ﷺ مُفَلَّجَ الثنايا، أشنب، إذا تكلم خرج النورُ من بينِ ثناياه ﷺ</p><p>وأما عن ريقِهِ الشريف ﷺ، فقد كان ﷺ تِرياقا وشِفاء وعذبا سلسبيلا، يتحولُ بهِ الماءُ الأُجاجُ إلى العذبِ الزُلال ﷺ.</p><p>وأما عن لسانِهِ الشريف ﷺ، فقد كان ﷺ أفصحَ الناسِ لساناً، وأحسنَهُم بيانا، وكان إذا تحدث حديثا لو عدَّه العادُّ لأحصاه، وكان يُعيدُ الكلمةَ ثلاثا لتُفهمَ عنه ﷺ.</p><p>وأما عن صوتِهِ الشريف ﷺ فقد كان صوتُهُ ﷺ هادِئا، ليس عاليا أو مُرتفعا، فكان أَحْسَنَ الناس نغمة، إذا تكلمَ أسمعَ الجميع، عَذُوبَ الصوت ﷺ.</p><p>وكان ﷺ طويلَ السكوت، لا يتكلمُ في غيرِ حاجةِ، ولا يقولُ المنكر ولا يقولُ في الرضَا وَالْغَضَبِ إِلَّا الْحَقَّ ﷺ.</p><p>وأما عن مشيه الشريف ﷺ، فقد كان ﷺ إذا مشى تَكفأ تكفياً كأنما يَنحَطُّ من صَبَب، وإذا وطأ بِقَدميه وطأ بِكُلِّه ﷺ، وإذا مشى كان يمشي مجتمعا أي قويُ الأعضاء، كأنما الأرضُ تطوى له، وهي مِشيةُ أولي العزمِ والهمةِ والشجاعةِ ﷺ. وكان ﷺ إذا مشى ليس له ظِلا، بل كان نورا ﷺ.</p><p>وأما عن رائحته الشريفة ﷺ، فقد كان ﷺ أطيبَ الناسِ ريحا وإن لم يَمَسَّ الطِّيب، فإن الطيبَ من عَرَقِهِ تَطَيَّب، والعطرَ من عرقِهِ تَعَطَّر ﷺ، وكان إذا مشى في طريقٍ فاحَ فيهِ المسكُ والطيب، وكان عَرَقُهُ للطيبِ طيب ﷺ.</p><p>وأما عن يدهِ الشريفةِ ﷺ، فقد كانت عِظامُها قوية وشديدة، ومعَ ذلكَ فقد كانت ألينَ منَ الحريرِ والديباج، وإذا مسَّ بها أحداً ظلَّ العطرُ فيها ثلاثةَ أيام، وكان ﷺ نديَّ الرَّاحِ، كريمَ الكَف، يُعطي عَطاءَ من لا يخشى الفقر ﷺ.</p><p>وأما عن هيكلِهِ الشريف، فقد كان ﷺ عريضَ الصدر، مستوي البطن، ليسَ بهِ سِمنة ﷺ، وعظامُ الساعدِ منهُ مثلُ عِظامِ الأسد، متينة جداً وقوية جداً.</p><p>وكان ﷺ كثَّ اللحية، أشعرَ الزراعينِ والمنكبينِ وأعالي الصدر، عارِيَ الثَّديينِ والبطنِ مما سُوى ذلك، طويلَ المسربة، ضخمَ الكراديس، ولم يكن ﷺ بالطويلِ ولا القصير، بل كان رَبعة بين القوم ﷺ.</p><hr><h4>(وصف أخلاقه الشريفة ﷺ)</h4><p>أما عن طعامِهِ ﷺ فقد َكَانَ ﷺ يَأْكُلُ مَا حَضَرَ، وَلَا يَرُدُّ مَا وَجَدَ، ولا يتورعُ عن مَطعمٍ حلال ﷺ، وكان أحبُ الطعامِ إليهِ ﷺ هوَ ما كانَ على ضَفَف، والضَّفَفُ ما كَثُرت عليهِ الأيادي، وكان ﷺ لا يأكلُ متكئاً ولا يأكلُ الحار، وَكَانَ ﷺ يَأْكُلُ مما يليه، ويأكلُ بأصابِعِهِ الثلاث، وربما استعان بالرابعة ﷺ، ولم يأكلْ رسولُ اللهِ ﷺ بِإصبَعين، بل يقولُ إن ذلك أكْلَةَ الشيطان، وما عابَ رسولُ اللهِ ﷺ طعاماً قط، إن أعجَبَهُ أكلَهُ وإن لم يُعجِبْهُ تركه ﷺ.</p><p>وكان ﷺ يشربُ في ثلاثِ دُفعات، وله فيها ثلاثُ تسميات، وفي أواخِرِها ثلاثُ تحميدات، وكان ﷺ يمصُّ الماءَ مصاً، ولا يَعُبُّ عباً، وكان لا يتنفَّسُ في الإناءِ بل ينحرفُ عنه ﷺ.</p><p>أما عن لباسِهِ الشريف ﷺ، فقد كان ﷺ يلبسُ ما وجد، من إزارٍ أو رداءٍ أو قميصٍ أو جُبَّةٍ أو غيرَ ذلك ﷺ.</p><p>وكان ﷺ أكثرَ لباسِهِ البياض، ويقولُ ألبسوها أحياءَكم وكفنوا فيها موتاكم، وَكَانَ إِذَا لَبِسَ ثَوْبًا لَبِسَهُ مِنْ قِبَلِ مَيَامِنَهِ، وإذا نَزع ثوبَهُ أخرجَهُ مِنْ مَيَاسِرِهِ ﷺ. أما عن مضْجَعِهِ ﷺ فما عاب رسولُ اللهِ ﷺ مضجعاً قط، إن فرشوا له اضطجعَ وإن لم يُفْرَش له اضطجعَ على الأرض ﷺ، وكان ينامُ على الحصيرِ ليسَ تَحْتَهُ شيءٌ غيرُه ﷺ.</p><p>وَكَانَ ﷺ يَخْصِفُ النَّعْلَ وَيُرَقِّعُ الثَّوْبَ وَيَخْدِمُ فِي مهنةِ أهلِهِ، ويقطِّعُ اللحم معَهُنَّ ﷺ. وَكان ﷺ يَأْكُلُ الهديةَ وَلَا يَأْكُلُ الصَّدَقَةَ، وكان ﷺ يجيبُ دعوةَ العبدِ والحرِ، ويقبلُ الهديةَ حتى لو كانت جَرْعَةَ لَبَن، أو فَخِذِ أرنب، بل ويكافيءُ عليها.</p><p>أما عن رحمتِهِ ﷺ فلم يكن حبيبنا ﷺ سباباً ولا لعاناً، ولا فاحشاً ولا متفحشاً بل كان رحمة ﷺ ، فما شتمَ رسولُ اللهِ ﷺ أحداً قط، وما لعنَ امرأةً قط، ولا خادماً بلعنة، وكان ﷺ لا يدعو على أحدٍ قط مسلمٍ أو كافر، عامٍ أو خاصٍ، بل كان يدعو للناسِ حتى من أساءوا إليه ﷺ.</p><p>وما ضربَ رسولُ اللهِ ﷺ بيدِهِ أحداً قط إِلَّا أَنْ يَضْرِبَ بِهَا فِي سَبِيلِ اللَّهِ تَعَالَى، وَمَا خُيِّرَ ﷺ بَيْنَ أَمْرَيْنِ قَطُّ إِلَّا اخْتَارَ أَيْسَرَهُمَا إِلَّا أَنْ يَكُونَ فِيهِ إِثْمٌ أَوْ قَطِيعَةُ رَحِمٍ فَيَكُونُ أَبْعَدَ النَّاسِ مِنْ ذَلِكَ ﷺ.</p><p>وكان ﷺ أفضلَ الناس، وأَحْلَمَ النَّاسِ، وأشجعَ الناس، وأعدلَ الناس، وأعفَّ الناس، وأَسْخَى النَّاسِ، وَكَانَ ﷺ أَشَدَّ النَّاسِ حَيَاءً، وكان لَا يَثْبُتُ بَصَرُهُ في وجهِ أحد ﷺ.</p><p>وكان ﷺ يَغْضَبُ لِرَبِّهِ وَلَا يَغْضَبُ لنفسهِ ابداً، وكان ﷺ لا ينتصرُ بِمُشْرِكٍ قَط ﷺ، وكان ﷺ يعودُ المريض، ويشهدُ الجنائز، ويمشي وحدهُ بين أعدائهِ بلا حارس ﷺ.</p><p>وكان ﷺ أَشَدَّ النَّاسِ تَوَاضُعًا وَأَسْكَنَهُمْ فِي غَيْرِ كِبْرٍ، وَأَبْلَغَهُمْ فِي غَيْرِ تَطْوِيلٍ ﷺ.</p><p>وَكَانَ ﷺ يَبْدَأَ مَنْ لَقِيَهُ بِالسَّلَامِ، وإذا سلم بِيدِهِ على أحَدٍ ما كانَ يُرسِلُ يَدَهُ حتى يُرسِلَها الآخر ﷺ.</p><p>أما عن مجلِسِهِ ومُجَالَسَتِهِ ﷺ فَكَانَ ﷺ لَا يَقُومُ وَلَا يَجْلِسُ إِلَّا عَلَى ذِكْرِ اللَّهِ، وَلَمْ يَكُنْ يُعْرَفُ مَجْلِسُهُ مِنْ مَجْلِسِ أَصْحَابِهِ لِأَنَّهُ كَانَ حَيْثُ انْتَهَى بِهِ الْمَجْلِسُ جَلَس ﷺ، وكان يُكرمُ من يدخلُ عليه حتى رُبَّما بَسَطَ ثَوبَهُ لكي يُجْلِسُهُ عَلَيْهِ ﷺ، وَكَانَ يُؤْثِرُ الدَّاخِلَ عَلَيْهِ بِالْوِسَادَةِ التي تَحْتَه، وَلَمْ تَكُنْ تُرْفَعُ فِي مَجْلِسِهِ الْأَصْوَاتُ، وكان مجلِسُهُ مجلِسُ حياءٍ وتواضعٍ وأمانة ﷺ.</p><p>وكانَ ﷺ يُجَالِسُ الْفُقَرَاءَ، ويصلُ ذوي رَحِمَهُ، من غيرِ أن يؤثِرَهُم على من هو أفضلَ منهم، ولا يَجْفُو عَلَى أَحَدٍ، ويَقْبَلُ مَعْذِرَةَ الْمُعْتَذِرِ إِلَيْهِ ﷺ ، وكان ﷺ يمزَحُ ولا يقولُ إلا حقاً، ويضحكُ مِنْ غَيْرِ قَهْقَهَةٍ، ويَرَى اللَّعِبَ الْمُبَاحَ فَلَا يُنْكِرُه، ويسابِقُ أهلَه، وتُرفعُ الأصواتُ عليهِ فيصبر ﷺ، وكان ﷺ لا يَحتقرُ مسكيناً لفقرِه، وَلَا يَهَابُ مَلِكًا لِمُلْكِهِ، بل يَدْعُو هَذَا وَهَذَا إِلَى اللَّهِ دُعَاءً مُسْتَوِيًا، قَدْ جَمَعَ اللَّهُ تَعَالَى لَهُ السِّيرَةَ الْفَاضِلَةَ وَالسِّيَاسَةَ التَّامَّةَ وَهُوَ أُمِّيٌّ لَا يَقْرَأُ وَلَايَكْتُبُ ﷺ.</p><p>عَلَّمَهُ اللَّهُ تَعَالَى جَمِيعَ مَحَاسِنِ الْأَخْلَاقِ وَالطُّرُقِ الْحَمِيدَةِ وَأَخْبَارِ الْأَوَّلِينَ وَالْآخِرِينَ وَمَا فِيهِ النَّجَاةُ وَالْفَوْزُ فِي الْآخِرَةِ وَالْغِبْطَةُ وَالْخَلَاصُ في الدنيا ولزومُ الواجبِ وتركِ الفضول، وَفَّقَنَا اللَّهُ لِطَاعَتِهِ فِي أَمْرِهِ وَالتَّأَسِّي بِهِ فِي فِعْلِهِ آمِينَ يَا رَبَّ الْعَالَمِينَ</p><p>اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ حَاءُ الرَّحْمَةِ، وَمِيمُ الْمُلْكِ، وَدَالُ الدَّوَامِ، السَّيِّدُ الكَامِلُ الْفَاتِحُ الْخَاتِمُ، عَدَدَ مَا فِي عِلْمِكَ كِائِنٌ أَوْ قَدْ كَانَ، كُلَّمَا ذَكَرَكَ وَذَكَرَهُ الذَّاكِرُونَ، وَكُلَّمَا غَفَلَ عَنْ ذِكْرِكَ وَذِكْرِهِ الْغَافِلُونَ، صَلاَةً دَائِمَةً بَدَوَامِكَ بَاقِيَةً بِبَقَائِكَ لاَ مُنْتَهَى لَهَا دُونَ عِلْمِكَ، إِنَّكَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، وسلم تسليما كثيرا والحمد لله رب العالمين.</p><hr><h4>(بعض الأوراد والأذكار)</h4><p>قراءة سورة الفاتحة "الفاتحة"</p><p>اللَّهُ نُورُ السَّمَاوَاتِ وَالْأَرْضِ ۚ مَثَلُ نُورِهِ كَمِشْكَاةٍ فِيهَا مِصْبَاحٌ ۖ الْمِصْبَاحُ فِي زُجَاجَةٍ ۖ الزُّجَاجَةُ كَأَنَّهَا كَوْكَبٌ دُرِّيٌّ يُوقَدُ مِن شَجَرَةٍ مُّبَارَكَةٍ زَيْتُونَةٍ لَّا شَرْقِيَّةٍ وَلَا غَرْبِيَّةٍ يَكَادُ زَيْتُهَا يُضِيءُ وَلَوْ لَمْ تَمْسَسْهُ نَارٌ ۚ نُّورٌ عَلَىٰ نُورٍ ۗ يَهْدِي اللَّهُ لِنُورِهِ مَن يَشَاءُ ۚ وَيَضْرِبُ اللَّهُ الْأَمْثَالَ لِلنَّاسِ ۗ وَاللَّهُ بِكُلِّ شَيْءٍ عَلِيمٌ (5 مرات)</p><p>سُبْحَانَ اللهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ وَرِضَا نَفْسِهِ وَزِنَةَ عَرْشِهِ وَمِدَادَ كَلِمَاتِهِ (3 مرات)</p><p>حَسْبِيَ اللَّهُ لا إِلَـهَ إِلاَّ هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ (7 مرات)</p><p>استغفر الله العظيم (55 مرة)</p><p>اللهم صلي على سيدنا محمد مفتاح باب رحمة الله، وعلى آله وصحبه وسلم (27 مرة)</p><p>لا اله الا الله لا اله إلا الله (25 مرة)</p><h4>(أوراد خاصة)</h4><p>أوراد الدوحة المحمدية للحبيب / على سلامة</p><p><strong>التهليل</strong><br> " لا إله إلا الله الفرد الصمد الواحد الأحد ، سيدنا ومولانا محمد باب الأحد وصفوة الصمد ، وبه كُل المدد ، إلى حيث ينتهى العاد والعدد ، ولا يبقى إلا الواحد الأحد. "</p><p><strong>الاستغفار</strong><br> " استغفرُ اللهَ الحَنَّانَ المَنَّان وأتوب إليه من كل هاجس وخاطر يخطر في الجنان ، ومن كل قول وفعل يظهر على الجوارح والأركان ، استغفاراً يدوم بِدَوامِ المَلِكِ الدَّيانِ "</p><p><strong>الصلاة على النبي صلى الله عليه وسلم</strong><br> " اللهم صل وسلم وبارك على مولانا مُحمَّدٍ جَمَالِ الجَمَالِ ، وَكَمَالِ الكَمَالِ وعلى آله خير آل وصحبه خير الرجال"</p><p><strong>حزب العزة لسيدنا الإمام على كرم الله وجهه</strong><br> (بسم الله الرحمن الرحيم )<br> رَبِّ أَوْقِفْنِي موقف العز والكمال والبهجة والجلال ، حتى لا أجِدَ فِي ذَرَةً ولا دَقِيقَةً إِلا وقَدْ غَشِيَهَا مِن عِزَّ عِزَّكَ مَا يَمْنَعُها مِن الذُّلِّ لِغَيرِكَ ، حَتَّى أَشَاهِدَ ذل مَنْ سِوَايَ لِعِزَّتِي بِكَ مُؤَيَّداً بِرَقِيقَة مِنَ الرُعْبِ ، يَخْضَعُ لي بها كُلُّ شيطان مريدٍ وجَبَارٍ عَنِيدٍ، وَأَبْقَ عَلَى ذل العبودية في العزة بقاء يبسط لسان الاعتراف ويقبضُ لِسَانَ الدَّعَوَى، إِنَّكَ أَنتَ العزيز الجبار المتكبر القهار. (وَقُلِ الْحَمْدُ لِلَّهِ الَّذِي لَمْ يَتَّخِذ ولدا ولم يكن لَهُ شَرِيكَ فِي الْمُلْكِ وَلَمْ يَكُنْ لَهُ وَلِيٌّ مِنَ الذُّلِّ وَكَبِّرْهُ تَكْبِيرًا)<br> (سُبْحَانَ رَبِّكَ رَبِّ الْعِزَّةِ عَمَّا يَصِفُونَ (3) وَسَلَامٌ عَلَى الْمُرْسَلِينَ وَالْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ)</p></div>`;
+
+  const PRIVACY_TEXT = `<div class="info-box">🔒 سياسة الخصوصية</div><p>جميع البيانات تُخزن بتشفير ولا تشارك مع أي طرف ثالث.</p>`;
+  const COPYRIGHT_TEXT = `<div class="info-box">© جميع الحقوق محفوظة - الدوحة المحمدية</div><p>التطبيق وجميع محتوياته ملكية فكرية خاصة.</p>`;
+
+  // ================== جداول المستويات (كما في الملف الأخير) ==================
+  const LEVELS = {
+    1: {
+      name: "المستوى الأول",
+      totalDays: 100,
+      rows: [ "استهلال", "الصبح في وقته", "سنة الصبح", "أذكار الصباح", "سنن الإستيقاظ", "مذاكرة (أو اتقان عمل)", "الورد العام", "حفظ العين من النظر إلى الحرام", "الظهر في وقته", "سنن الظهر", "بر والدين يومي", "العصر في وقته", "سنة العصر (قبل)", "سنن الأكل والشرب", "أذكار المساء", "المغرب في وقته", "حفظ قرآن (أو قراءة)", "العشاء في وقته", "الشفع والوتر", "سورة الملك", "الإقلاع عن ذنب", "قيام الليل", "سنن النوم", "استهلال" ]
+    },
+    2: {
+      name: "المستوى الثاني",
+      totalDays: 150,
+      rows: [ "الصبح + السنن", "اللإستهلال", "أذكار الصباح", "سورة يس", "متابعة السنن الحياتية للحبيب ﷺ", "حفظ اللسان من: الكذب", "حفظ اللسان من: الفُحش", "حفظ اللسان من: الغيبة", "حفظ اللسان من: السب", "حفظ العين: نظرة الحسد", "حفظ العين: نظرة العورات والمحرمات", "الورد العام", "الظهر + السنن", "سورة الواقعة", "بر والدين يومي", "العصر + السنن", "مذاكرة (أو اتقان عمل)", "أذكار المساء", "المغرب + السنن", "القرآن الكريم", "العشاء + شفع والوتر", "حفظ الفرج: الزنا وغيره", "سورة الملك", "الإقلاع عن ذنب", "قيام الليل", "الإستهلال" ]
+    },
+    3: {
+      name: "المستوى الثالث",
+      totalDays: 300,
+      rows: [ "الصبح + السنن", "الاستهلال + سورة يس", "أذكار الصباح", "متابعة السنن الحياتية", "مذاكرة (أو اتقان عمل)", "بر والدين يومي", "الإمتناع عن 10 آفات للسان", "الإمتناع عن آفات اليد", "الإمتناع عن آفات المشي", "الإمتناع عن آفات العين", "الإمتناع عن آفات الأذن", "الإمتناع عن آفات البطن", "الإمتناع عن آفات الفرج", "الورد العام", "الظهر + السنن", "سورة الواقعة", "العصر + السنن", "سورة الرحمن", "أذكار المساء", "المغرب + السنن", "سورة الدخان", "قرآءة حزب من القرآن", "حفظ قرآن الكريم", "العشاء + الشفع والوتر", "سورة الملك", "الإقلاع عن ذنب", "فعل الخير اليومي", "قيام الليل + السجدة", "القراءة اليومية", "قراءة الشمائل", "الاستهلال" ]
+    },
+    4: {
+      name: "المستوى الرابع",
+      totalDays: null,
+      rows: [ "الاستهلال", "الصبح + السنن", "الظهر + السنن", "العصر + السنن", "المغرب + السنن", "العشاء + الشفع والوتر", "صلاة الضحى", "قيام الليل", "يس (صباحاً)", "الواقعة (بعد الظهر)", "الرحمن (بعد العصر)", "الدخان (بعد المغرب)", "الملك (بعد العشاء)", "السجدة (قبل النوم)", "قرآءة حزب من القرآن", "حفظ قرآن الكريم", "أذكار الصباح", "الورد العام", "الورد الخاص", "أذكار المساء", "قراءة الشمائل", "متابعة السنن الحياتية", "ممارسة رياضة يومية", "الإقلاع عن ذنب", "حفظ اللسان والأذن والعين", "حفظ البطن والفرج", "حفظ اليد والرجل", "مراقبة 4 من أمراض القلب", "مراقبة 4 أخرى من أمراض القلب", "مذاكرة (أو اتقان عمل)", "بر والدين يومي", "حق الأهل", "تحصيل علم", "فعل الخير اليومي", "الاستهلال" ]
+    }
+  };
+
+  const PUNISHMENTS = {
+    1: [ "ينفذ في أي وقت ف النهار", "300 استغفار", "10 حوقلة", "10 حوقلة", "قراءة صفحة قرآن", "500 صلاة عن النبي", "ركعتان تطوع", "ركعتان توبة أو 500 استغفار", "300 استغفار", "10 حوقلة", "300 استغفار", "300 استغفار", "تقبيل يد الوالدين", "100 تسبيح", "10 حوقلة", "300 استغفار", "50 صلاة علي النبي", "300 استغفار", "50 صلاة علي النبي", "50 تهليل", "ركعتان توبة", "50 تهليل", "المعوذتين", "ينفذ في أي وقت ف الليل" ],
+    2: [ "400 استغفار", "ينفذ في أي وقت ف النهار", "15 حوقلة", "100 تسبيح", "قراءة صفحة من القرآن", "ندم + 10 استغفار", "ندم + 10 استغفار", "ندم + 10 استغفار", "ندم + 10 استغفار", "ندم + 10 استغفار", "ندم + 10 استغفار", "ركعتان تطوع", "400 استغفار", "15 حوقلة", "دعاء للوالدين", "400 استغفار", "500 صلاة عن النبي", "15 حوقلة", "400 استغفار", "50 صلاة علي النبي", "400 استغفار", "ركعتان توبة", "100 تسبيح", "ركعتان توبة", "50 تهليل", "ينفذ في أي وقت ف الليل" ],
+    3: [ "400 استغفار", "100 تسبيح", "15 حوقلة", "قراءة صفحتين من القرآن", "500 صلاة عن النبي", "دعاء للوالدين", "50 استغفار لكل آفة", "50 استغفار لكل آفة", "50 استغفار لكل آفة", "50 استغفار لكل آفة", "50 استغفار لكل آفة", "50 استغفار لكل آفة", "50 استغفار لكل آفة", "ركعتان تطوع", "400 استغفار", "15 حوقلة", "400 استغفار", "15 حوقلة", "15 حوقلة", "400 استغفار", "15 حوقلة", "50 صلاة على النبي", "50 صلاة على النبي", "400 استغفار", "100 تسبيح", "ركعتان توبة", "10 تهليل", "100 تهليل", "10 تهليل", "100 صلاة عليه", "ينفذ في أي وقت ف الليل" ],
+    4: [ "لابد من فعله خلال اليوم", "400 استغفار", "400 استغفار", "400 استغفار", "400 استغفار", "400 استغفار", "20 تهليل", "100 تهليل", "100 تسبيح", "15 حوقلة", "15 حوقلة", "15 حوقلة", "100 تسبيح", "100 تسبيح", "50 صلاة على النبي", "50 صلاة على النبي", "15 حوقلة", "ركعتان تطوع", "ركعتان تطوع", "15 حوقلة", "100 صلاة عليه", "قراءة صفحتين من القرآن", "50 صلاة على النبي", "ركعتان توبة", "50 استغفار لكل آفة", "50 استغفار لكل آفة", "50 استغفار لكل آفة", "50 استغفار لكل آفة", "50 استغفار لكل آفة", "500 صلاة عن النبي", "دعاء للوالدين", "30 استغفار", "50 استغفار", "10 تهليل", "ينفذ في أي وقت في الليل" ]
+  };
+
+  let currentUser = null;
+  let userProgress = {};
+  let userTasks = {};
+  let currentLevel = 1;
+  let appSettings = JSON.parse(localStorage.getItem('dawha_settings') || '{"notifications":true,"darkMode":false,"quranFont":true}');
+  let isBanned = false;
+
+  function getCurrentDateKey() {
+    let d = new Date();
+    if (d.getHours() < 3) d.setDate(d.getDate() - 1);
+    return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  }
+  function applyTheme() { if(appSettings.darkMode) document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode'); }
+  
+  function showCustomAlert(message, withCallButton = false) {
+    return new Promise((resolve) => {
+      const overlay = document.createElement('div');
+      overlay.className = 'custom-alert-overlay';
+      let callButtonHtml = '';
+      if (withCallButton) {
+        callButtonHtml = `<a href="tel:01122302220" class="call-button" style="display: inline-block; background: #2e7d32; color: white; border: none; border-radius: 35px; padding: 10px 20px; margin-top: 15px; cursor: pointer; font-weight: bold; text-decoration: none;">📞 اتصل بنا: 01122302220</a>`;
+      }
+      overlay.innerHTML = `<div class="custom-alert">
+        <i class="fas fa-info-circle" style="font-size:2rem; color:#d4af37; margin-bottom:10px;"></i>
+        <p style="margin:10px 0;">${message}</p>
+        ${callButtonHtml}
+        <button class="custom-alert-btn" style="margin-top:${callButtonHtml ? '10px' : '15px'};">حسنًا</button>
+      </div>`;
+      document.body.appendChild(overlay);
+      overlay.querySelector('button').addEventListener('click', () => { overlay.remove(); resolve(); });
+    });
+  }
+
+  function showReminder(title, message) {
+    if (!appSettings.notifications) return;
+    const popup = document.getElementById('reminderPopup');
+    document.getElementById('reminderTitle').innerText = title;
+    document.getElementById('reminderMessage').innerHTML = message;
+    popup.style.display = 'block';
+    setTimeout(() => popup.style.display = 'none', 8000);
+  }
+  function scheduleReminders() {
+    setInterval(() => {
+      const now = new Date();
+      const hours = now.getHours(), minutes = now.getMinutes();
+      if (hours === 5 && minutes === 0) showReminder("🌅 أذكار الصباح", "حان وقت أذكار الصباح. افتح قسم الأذكار لتقرأها كاملة.");
+      if (hours === 18 && minutes === 0) showReminder("🌙 أذكار المساء", "حان وقت أذكار المساء. افتح قسم الأذكار لتقرأها كاملة.");
+      if (hours === 21 && minutes === 0) showReminder("📋 تذكير بالمهام", "لم تنتهِ بعد من مهام اليوم؟ توجه إلى جدول المستويات لتقييم يومك.");
+    }, 60000);
+  }
+
+  async function checkIfBanned(userId) {
+    if (!userId) return false;
+    try {
+      const { data, error } = await supabaseClient.from('banned_users').select('user_id').eq('user_id', userId);
+      if (error) return false;
+      return data && data.length > 0;
+    } catch(e) { return false; }
+  }
+
+  async function loadUserData() {
+    if(!currentUser) return;
+    try {
+      const banned = await checkIfBanned(currentUser.id);
+      if (banned) {
+        isBanned = true;
+        await showCustomAlert("🚫 تم حظر حسابك من قبل المشرف. للتواصل مع الدعم الفني، يرجى الاتصال على الرقم التالي:", true);
+        await logout();
+        return;
+      }
+      isBanned = false;
+      const { data: prog } = await supabaseClient.from('user_progress').select('*').eq('user_id', currentUser.id);
+      if(prog) prog.forEach(p => { userProgress[p.level] = { day: p.current_day, completed: p.level_completed }; });
+      for(let i=1;i<=4;i++) if(!userProgress[i]) userProgress[i] = { day: 1, completed: false };
+      const todayKey = getCurrentDateKey();
+      const dayNum = userProgress[currentLevel]?.day || 1;
+      const { data: tasks } = await supabaseClient.from('user_tasks').select('*').eq('user_id', currentUser.id).eq('level', currentLevel).eq('day', dayNum).eq('date_key', todayKey);
+      userTasks = {};
+      if(tasks) tasks.forEach(t => { userTasks[`L${t.level}_D${t.day}_${t.task_index}`] = t.status; });
+    } catch(e) { console.error(e); await showCustomAlert("خطأ في تحميل البيانات: " + e.message); }
+  }
+
+  async function saveProgress(level, day, completed) {
+    try {
+      const { error } = await supabaseClient.from('user_progress').upsert({ user_id: currentUser.id, level, current_day: day, level_completed: completed }, { onConflict: 'user_id, level' });
+      return !error;
+    } catch(e) { return false; }
+  }
+  async function saveTask(level, day, idx, status) {
+    try {
+      const dateKey = getCurrentDateKey();
+      const { error } = await supabaseClient.from('user_tasks').upsert({ user_id: currentUser.id, level, day, task_index: idx, status, date_key: dateKey }, { onConflict: 'user_id, level, day, task_index, date_key' });
+      return !error;
+    } catch(e) { return false; }
+  }
+
+  function getDay(lvl) { return userProgress[lvl]?.day || 1; }
+  function getTotal(lvl) { return LEVELS[lvl]?.totalDays === null ? 'مفتوح' : LEVELS[lvl]?.totalDays || 100; }
+
+  async function renderLevels() {
+    if(!currentUser || isBanned) return;
+    await loadUserData();
+    let html = '';
+    for(let i=1;i<=4;i++) {
+      let day = getDay(i);
+      let total = getTotal(i);
+      let isLocked = (i>1 && !userProgress[i-1]?.completed);
+      let statusText = i===4 ? (total === 'مفتوح' ? `اليوم ${day}` : `اليوم ${day}/${total}`) : `اليوم ${day}/${total}`;
+      if(userProgress[i]?.completed) statusText = '✅ مكتمل';
+      html += `<div class="level-card ${isLocked?'locked':''}" data-level="${i}"><div class="level-left"><div class="level-icon-circle">${['🕌','📿','🌟','🌙'][i-1]}</div><div><div class="level-name">${LEVELS[i].name}</div><div class="level-status">${statusText}</div></div></div><div class="level-arrow-circle"><i class="fas ${isLocked?'fa-lock':'fa-arrow-left'}"></i></div></div>`;
+    }
+    document.getElementById('levelsContainer').innerHTML = html;
+    document.querySelectorAll('.level-card:not(.locked)').forEach(card => {
+      card.addEventListener('click', () => { currentLevel = parseInt(card.dataset.level); renderTable(); switchScreen('tables'); });
+    });
+  }
+
+  async function renderTable() {
+    if(isBanned) return;
+    let day = getDay(currentLevel);
+    let rows = LEVELS[currentLevel].rows;
+    let pun = PUNISHMENTS[currentLevel];
+    let html = `<table class="muhasaba-table"><thead><tr><th>العمل</th><th>✅</th><th>❌</th><th>العقوبة</th></tr></thead><tbody>`;
+    for(let i=0;i<rows.length;i++) {
+      let key = `L${currentLevel}_D${day}_${i}`;
+      let status = userTasks[key];
+      let done = status === true;
+      let notDone = status === false;
+      html += `<tr>
+        <td style="text-align:right;">${rows[i]}</td>
+        <td><button class="check-btn ${done?'active':''}" data-idx="${i}">✓</button></td>
+        <td><button class="cross-btn ${notDone?'active':''}" data-idx="${i}">✗</button></td>
+        <td>${pun[i]}</td>
+      </tr>`;
+    }
+    html += `</tbody></tr>`;
+    document.getElementById('tableWrapper').innerHTML = html;
+    document.getElementById('currentDayDisplay').innerHTML = day;
+    document.getElementById('totalDaysDisplay').innerHTML = getTotal(currentLevel);
+    document.getElementById('tableScreenTitle').innerHTML = LEVELS[currentLevel].name;
+    
+    document.querySelectorAll('.check-btn, .cross-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        let idx = parseInt(btn.dataset.idx);
+        let key = `L${currentLevel}_D${day}_${idx}`;
+        let isCheck = btn.classList.contains('check-btn');
+        let newVal = isCheck ? (userTasks[key] === true ? undefined : true) : (userTasks[key] === false ? undefined : false);
+        userTasks[key] = newVal;
+        await saveTask(currentLevel, day, idx, newVal);
+        renderTable();
+      });
+    });
+  }
+
+  document.getElementById('saveMuhasabaBtn')?.addEventListener('click', async () => {
+    if(isBanned) return;
+    let currentDayNum = getDay(currentLevel);
+    let rows = LEVELS[currentLevel].rows;
+    let allDefined = true;
+    for(let i=0;i<rows.length;i++) {
+      let key = `L${currentLevel}_D${currentDayNum}_${i}`;
+      if(userTasks[key] === undefined) { allDefined = false; break; }
+    }
+    if(!allDefined) { await showCustomAlert("⚠️ الرجاء تقييم جميع المهام (✅ أو ❌) قبل حفظ اليوم."); return; }
+    
+    let todayKey = getCurrentDateKey();
+    let lastSaveKey = `dawha_last_${currentUser.id}_${currentLevel}`;
+    if(localStorage.getItem(lastSaveKey) === todayKey && LEVELS[currentLevel].totalDays !== null) {
+      await showCustomAlert("⚠️ لقد حفظت هذا اليوم بالفعل. لا يمكن حفظ أكثر من جدول في اليوم.");
+      return;
+    }
+    
+    let total = LEVELS[currentLevel].totalDays;
+    if(total === null) {
+      let newDay = currentDayNum + 1;
+      userProgress[4] = { day: newDay, completed: false };
+      if(await saveProgress(4, newDay, false)) {
+        localStorage.setItem(lastSaveKey, todayKey);
+        await showCustomAlert(`✅ تم حفظ اليوم ${newDay} (المستوى الرابع)`);
+        await loadUserData();
+        await renderTable();
+      }
+      return;
+    }
+    
+    if(currentDayNum < total) {
+      let newDay = currentDayNum + 1;
+      userProgress[currentLevel] = { day: newDay, completed: false };
+      if(await saveProgress(currentLevel, newDay, false)) {
+        localStorage.setItem(lastSaveKey, todayKey);
+        await showCustomAlert(`✅ تم حفظ اليوم ${newDay} من ${total}`);
+        await loadUserData();
+        await renderTable();
+      }
+    } else if(currentDayNum === total) {
+      userProgress[currentLevel] = { day: currentDayNum, completed: true };
+      if(await saveProgress(currentLevel, currentDayNum, true)) {
+        if(currentLevel < 4) {
+          userProgress[currentLevel+1] = { day: 1, completed: false };
+          await saveProgress(currentLevel+1, 1, false);
+          await showCustomAlert(`🎉 أكملت ${LEVELS[currentLevel].name}! تم فتح ${LEVELS[currentLevel+1].name}. سيتم نقلك إليه تلقائياً.`);
+          currentLevel++;
+          await loadUserData();
+          await renderTable();
+          switchScreen('tables');
+        } else {
+          await showCustomAlert(`🎉 أكملت ${LEVELS[currentLevel].name}! بارك الله فيك.`);
+          await renderLevels();
+          switchScreen('levels');
+        }
+      }
+    }
+  });
+
+  // ================== البث المباشر ==================
+  let liveTimer = null;
+  let liveCurrentUrl = null;
+
+  function toEmbedUrl(raw) {
+    try {
+      const url = new URL(raw);
+      if (url.protocol !== 'https:') return null;
+      const host = url.hostname.replace(/^www\./, '').replace(/^m\./, '');
+      if (host === 'youtu.be') {
+        const id = url.pathname.slice(1);
+        return id ? `https://www.youtube.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0` : null;
+      }
+      if (host.endsWith('youtube.com')) {
+        let id = url.searchParams.get('v');
+        if (!id) {
+          const m = url.pathname.match(/\/(live|embed|shorts)\/([^/?]+)/);
+          if (m) id = m[2];
+        }
+        return id ? `https://www.youtube.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0` : null;
+      }
+      if (host.endsWith('facebook.com') || host === 'fb.watch') {
+        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(raw)}&show_text=false&autoplay=true`;
+      }
+      return raw;
+    } catch (e) { return null; }
+  }
+
+  function setLiveState(isLive, text) {
+    const badge = document.getElementById('liveBadge');
+    badge.classList.toggle('offline', !isLive);
+    document.getElementById('liveBadgeText').innerText = text;
+  }
+
+  function showLiveEmpty(message) {
+    stopWebrtcViewer();
+    liveCurrentUrl = null;
+    document.getElementById('liveFrameWrap').innerHTML = `<div class="live-empty"><i class="fas fa-video-slash"></i><div>${message}</div></div>`;
+  }
+
+  async function fetchLiveStream() {
+    // 1) من قاعدة البيانات (إن وُجد الجدول)
+    try {
+      const { data, error } = await supabaseClient
+        .from('live_streams')
+        .select('*')
+        .eq('is_live', true)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      if (!error && data && data.length > 0 && data[0].url) {
+        return { title: data[0].title || LIVE_STREAM_TITLE, description: data[0].description || '', url: data[0].url };
+      }
+    } catch (e) { console.log('live_streams غير متاح', e); }
+    // 2) الرابط الثابت من الإعدادات
+    if (LIVE_STREAM_URL) return { title: LIVE_STREAM_TITLE, description: '', url: LIVE_STREAM_URL };
+    return null;
+  }
+
+  async function renderLive() {
+    if (!currentUser || isBanned) return;
+    if (!rtcActive && !liveCurrentUrl) setLiveState(false, 'جاري التحقق...');
+    const stream = await fetchLiveStream();
+    const wrap = document.getElementById('liveFrameWrap');
+    const titleEl = document.getElementById('liveTitle');
+    const descEl = document.getElementById('liveDesc');
+
+    if (!stream) {
+      setLiveState(false, 'لا يوجد بث حالياً');
+      titleEl.textContent = '';
+      descEl.textContent = '';
+      showLiveEmpty('لا يوجد بث مباشر في الوقت الحالي.<br>سيظهر البث هنا فور بدئه.');
+      return;
+    }
+    // بث مباشر بالكاميرا من لوحة التحكم (WebRTC)
+    if (String(stream.url).startsWith('webrtc://')) {
+      setLiveState(true, 'بث مباشر الآن');
+      titleEl.textContent = stream.title;
+      descEl.textContent = stream.description;
+      if (!rtcActive) startWebrtcViewer();
+      return;
+    }
+    stopWebrtcViewer();
+    const embed = toEmbedUrl(stream.url);
+    if (!embed) {
+      setLiveState(false, 'رابط البث غير صالح');
+      showLiveEmpty('رابط البث غير صالح. تأكد أنه يبدأ بـ https');
+      return;
+    }
+    setLiveState(true, 'بث مباشر الآن');
+    titleEl.textContent = stream.title;
+    descEl.textContent = stream.description;
+    // لا نعيد تحميل الفيديو إن كان نفس الرابط يعمل بالفعل
+    if (liveCurrentUrl === embed && wrap.querySelector('iframe')) return;
+    liveCurrentUrl = embed;
+    wrap.innerHTML = '';
+    const iframe = document.createElement('iframe');
+    iframe.src = embed;
+    iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen');
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+    iframe.setAttribute('title', stream.title);
+    wrap.appendChild(iframe);
+  }
+
+  // ===== مشاهدة البث بالكاميرا (WebRTC عبر Supabase Realtime) =====
+  const RTC_CONFIG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
+  let rtcActive = false, rtcChannel = null, rtcPc = null, rtcVid = null, rtcJoinTimer = null, rtcPendingIce = [], rtcConnected = false;
+
+  function rtcSend(payload) { try { rtcChannel?.send({ type: 'broadcast', event: 'sig', payload }); } catch (e) {} }
+  function rtcJoin() { rtcSend({ type: 'join', from: rtcVid, to: 'host' }); }
+  function rtcOverlay(msg) {
+    const o = document.getElementById('liveOverlay');
+    if (!o) return;
+    if (msg) { o.querySelector('div').textContent = msg; o.classList.remove('hidden'); } else o.classList.add('hidden');
+  }
+  function rtcClosePc() {
+    const pc = rtcPc; rtcPc = null; rtcPendingIce = [];
+    if (pc) { try { pc.ontrack = null; pc.onicecandidate = null; pc.onconnectionstatechange = null; pc.close(); } catch (e) {} }
+  }
+
+  function startWebrtcViewer() {
+    stopWebrtcViewer();
+    rtcActive = true;
+    liveCurrentUrl = null;
+    rtcVid = 'v' + Math.random().toString(36).slice(2, 10);
+    const wrap = document.getElementById('liveFrameWrap');
+    wrap.innerHTML = '<video id="liveVideo" autoplay playsinline controls muted></video><div class="live-overlay" id="liveOverlay"><i class="fas fa-circle-notch fa-spin"></i><div>جاري الاتصال بالبث...</div></div>';
+    rtcChannel = supabaseClient.channel('dawha-live', { config: { broadcast: { self: false } } });
+    rtcChannel.on('broadcast', { event: 'sig' }, ({ payload }) => onRtcSignal(payload)).subscribe(status => {
+      if (status === 'SUBSCRIBED') {
+        rtcJoin();
+        rtcJoinTimer = setInterval(() => { if (!rtcConnected) rtcJoin(); }, 4000);
+      }
+    });
+  }
+
+  async function onRtcSignal(p) {
+    if (!p || !rtcActive) return;
+    if (p.type === 'host-ready') { if (!rtcConnected) rtcJoin(); return; }
+    if (p.type === 'end') { rtcConnected = false; rtcClosePc(); rtcOverlay('انتهى البث'); return; }
+    if (p.to !== rtcVid) return;
+    try {
+      if (p.type === 'full') { rtcOverlay('البث ممتلئ حالياً، حاول بعد قليل'); return; }
+      if (p.type === 'offer') {
+        rtcClosePc();
+        const pc = new RTCPeerConnection(RTC_CONFIG);
+        rtcPc = pc;
+        pc.ontrack = (e) => {
+          const v = document.getElementById('liveVideo');
+          if (v && v.srcObject !== e.streams[0]) { v.srcObject = e.streams[0]; v.play().catch(() => {}); }
+          rtcConnected = true;
+          rtcOverlay(null);
+        };
+        pc.onicecandidate = (e) => { if (e.candidate) rtcSend({ type: 'ice', from: rtcVid, to: 'host', data: e.candidate }); };
+        pc.onconnectionstatechange = () => {
+          if (pc !== rtcPc) return;
+          if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
+            rtcConnected = false; rtcClosePc(); rtcOverlay('انقطع الاتصال... جاري إعادة المحاولة');
+          }
+        };
+        await pc.setRemoteDescription(p.data);
+        for (const c of rtcPendingIce) { try { await pc.addIceCandidate(c); } catch (e) {} }
+        rtcPendingIce = [];
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        rtcSend({ type: 'answer', from: rtcVid, to: 'host', data: pc.localDescription });
+      } else if (p.type === 'ice') {
+        if (rtcPc && rtcPc.remoteDescription) { try { await rtcPc.addIceCandidate(p.data); } catch (e) {} }
+        else rtcPendingIce.push(p.data);
+      }
+    } catch (e) { console.log('rtc error', e); }
+  }
+
+  function stopWebrtcViewer() {
+    rtcActive = false; rtcConnected = false;
+    if (rtcJoinTimer) { clearInterval(rtcJoinTimer); rtcJoinTimer = null; }
+    rtcClosePc();
+    if (rtcChannel) { try { supabaseClient.removeChannel(rtcChannel); } catch (e) {} rtcChannel = null; }
+  }
+
+  function startLivePolling() {
+    stopLivePolling();
+    renderLive();
+    liveTimer = setInterval(renderLive, 15000);
+  }
+  function stopLivePolling() {
+    if (liveTimer) { clearInterval(liveTimer); liveTimer = null; }
+    stopWebrtcViewer();
+    // إيقاف البث عند مغادرة الشاشة
+    const wrap = document.getElementById('liveFrameWrap');
+    if (wrap) wrap.innerHTML = '';
+    liveCurrentUrl = null;
+  }
+
+  async function loadNotifications() {
+    if (!currentUser || isBanned) return;
+    try {
+      const { data, error } = await supabaseClient.from('notifications').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      let html = '';
+      data.forEach(n => {
+        html += `<div class="notification-card" data-id="${n.id}">
+          <div><strong>${n.title}</strong></div>
+          <div style="font-size:0.7rem;">${new Date(n.created_at).toLocaleDateString('ar-EG')}</div>
+        </div>`;
+      });
+      document.getElementById('notificationsList').innerHTML = html || '<div>لا توجد إشعارات جديدة</div>';
+      document.querySelectorAll('.notification-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const notif = data.find(n => n.id == card.dataset.id);
+          if(notif) {
+            document.getElementById('notificationDetailTitle').innerHTML = notif.title;
+            document.getElementById('notificationDetailBody').innerHTML = `<div class="info-box">${notif.body}</div>`;
+            switchScreen('notificationDetail');
+          }
+        });
+      });
+    } catch(e) { console.error(e); }
+  }
+
+
+  // ================== إشعارات الهاتف في الخلفية (Web Push) ==================
+  const VAPID_PUBLIC_KEY = "BObL55fL98DslMo9F9vE412jMKv_fdDvqoluQBKtKDGQeh8Z7L1eHs2kCR3nbso1mf1Wc0IU0WZdTvBJQ5SnK7k";
+
+  function pushSupported() {
+    return ('serviceWorker' in navigator) && ('PushManager' in window) && ('Notification' in window) && window.isSecureContext;
+  }
+  function urlBase64ToUint8Array(b64) {
+    const pad = '='.repeat((4 - b64.length % 4) % 4);
+    const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+    return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+  }
+  async function getSwRegistration() {
+    let reg = await navigator.serviceWorker.getRegistration();
+    if (!reg) reg = await navigator.serviceWorker.register('sw.js');
+    await navigator.serviceWorker.ready;
+    return reg;
+  }
+  async function savePushSubscription(sub) {
+    if (!currentUser) return false;
+    const j = sub.toJSON();
+    const { error } = await supabaseClient.from('push_subscriptions').upsert({
+      user_id: currentUser.id,
+      endpoint: j.endpoint,
+      p256dh: j.keys.p256dh,
+      auth: j.keys.auth,
+      user_agent: navigator.userAgent.slice(0, 200)
+    }, { onConflict: 'endpoint' });
+    if (error) { console.log('push save error', error); return false; }
+    return true;
+  }
+  // يجب استدعاؤها من ضغطة مستخدم (لطلب الإذن)
+  async function enablePush() {
+    if (!pushSupported()) {
+      await showCustomAlert("هذا المتصفح لا يدعم إشعارات الخلفية. افتح التطبيق من Chrome على رابط https، وعلى الآيفون أضِف الموقع إلى الشاشة الرئيسية أولاً.");
+      return false;
+    }
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') {
+        await showCustomAlert("لم يتم السماح بالإشعارات. فعّلها من إعدادات المتصفح ← إعدادات الموقع ← الإشعارات.");
+        return false;
+      }
+      const reg = await getSwRegistration();
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
+      const ok = await savePushSubscription(sub);
+      if (!ok) { await showCustomAlert("تعذر حفظ الاشتراك. حاول مرة أخرى."); return false; }
+      await showCustomAlert("✅ تم تفعيل إشعارات الهاتف. ستصلك الرسائل حتى والتطبيق مغلق.");
+      return true;
+    } catch (e) {
+      console.log('enablePush', e);
+      await showCustomAlert("تعذر تفعيل الإشعارات: " + (e.message || e.name));
+      return false;
+    }
+  }
+  async function disablePush() {
+    try {
+      const reg = await navigator.serviceWorker.getRegistration();
+      const sub = reg ? await reg.pushManager.getSubscription() : null;
+      if (sub) {
+        const endpoint = sub.endpoint;
+        await sub.unsubscribe();
+        if (currentUser) await supabaseClient.from('push_subscriptions').delete().eq('endpoint', endpoint);
+      }
+    } catch (e) { console.log('disablePush', e); }
+  }
+  async function isPushActive() {
+    if (!pushSupported() || Notification.permission !== 'granted') return false;
+    try {
+      const reg = await navigator.serviceWorker.getRegistration();
+      return !!(reg && await reg.pushManager.getSubscription());
+    } catch (e) { return false; }
+  }
+  // مزامنة صامتة عند فتح التطبيق إن كان الإذن ممنوحاً
+  async function silentPushSync() {
+    if (!pushSupported() || Notification.permission !== 'granted' || !currentUser) return;
+    try {
+      const reg = await getSwRegistration();
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
+      await savePushSubscription(sub);
+    } catch (e) { console.log('silentPushSync', e); }
+  }
+  function showPushPrompt() {
+    const overlay = document.createElement('div');
+    overlay.className = 'custom-alert-overlay';
+    overlay.innerHTML = `<div class="custom-alert">
+      <i class="fas fa-bell" style="font-size:2rem; color:#d4af37; margin-bottom:10px;"></i>
+      <p style="margin:10px 0; font-weight:bold;">فعّل إشعارات الهاتف</p>
+      <p style="font-size:0.85rem;">لتصلك رسائل الإدارة والتذكيرات بصوت الهاتف حتى والتطبيق مغلق.</p>
+      <button class="custom-alert-btn" id="pushPromptYes">🔔 تفعيل</button>
+      <button class="custom-alert-btn" id="pushPromptNo" style="background:#7a6a55;">لاحقاً</button>
+    </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#pushPromptNo').addEventListener('click', () => overlay.remove());
+    overlay.querySelector('#pushPromptYes').addEventListener('click', async () => { overlay.remove(); await enablePush(); });
+  }
+  async function pushPromptOrSync() {
+    if (!currentUser || isBanned || !pushSupported()) return;
+    if (Notification.permission === 'granted') { silentPushSync(); return; }
+    if (Notification.permission === 'denied') return;
+    const today = getCurrentDateKey();
+    try { if (localStorage.getItem('dawha_push_prompt') === today) return; localStorage.setItem('dawha_push_prompt', today); } catch (e) {}
+    showPushPrompt();
+  }
+  async function updatePushUI() {
+    const txt = document.getElementById('pushStatusText');
+    const btn = document.getElementById('pushToggleBtn');
+    if (!txt || !btn) return;
+    if (!pushSupported()) { txt.textContent = 'غير مدعومة في هذا المتصفح (استخدم Chrome على رابط https)'; btn.style.display = 'none'; return; }
+    btn.style.display = '';
+    if (Notification.permission === 'denied') { txt.textContent = '🚫 محظورة من إعدادات المتصفح. فعّلها من إعدادات الموقع.'; btn.textContent = 'إعادة المحاولة'; return; }
+    const active = await isPushActive();
+    txt.textContent = active ? '✅ مفعّلة على هذا الجهاز' : 'غير مفعّلة';
+    btn.textContent = active ? 'إيقاف' : 'تفعيل';
+  }
+
+  async function login(email, password) {
+    try {
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if(error) throw error;
+      currentUser = data.user;
+      const banned = await checkIfBanned(currentUser.id);
+      if (banned) {
+        await showCustomAlert("🚫 تم حظر حسابك من قبل المشرف. للتواصل مع الدعم الفني، يرجى الاتصال على الرقم التالي:", true);
+        await supabaseClient.auth.signOut();
+        currentUser = null;
+        switchScreen('login');
+        return;
+      }
+      localStorage.setItem('dawha_current_user', JSON.stringify({ id: currentUser.id }));
+      await loadUserData();
+      renderLevels();
+      switchScreen('levels');
+      setTimeout(pushPromptOrSync, 2500);
+      await showCustomAlert("✅ تم تسجيل الدخول");
+    } catch(e) { await showCustomAlert(e.message); }
+  }
+  async function register(name, email, password) {
+    try {
+      const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { name } } });
+      if(error) throw error;
+      if(data.user) {
+        currentUser = data.user;
+        localStorage.setItem('dawha_current_user', JSON.stringify({ id: currentUser.id }));
+        await loadUserData();
+        renderLevels();
+        switchScreen('levels');
+        setTimeout(pushPromptOrSync, 2500);
+        await showCustomAlert("✅ تم إنشاء الحساب");
+      } else throw new Error("فشل إنشاء الحساب");
+    } catch(e) { await showCustomAlert(e.message); }
+  }
+  async function logout() {
+    try { await disablePush(); } catch (e) {}
+    await supabaseClient.auth.signOut();
+    localStorage.removeItem('dawha_current_user');
+    currentUser = null;
+    isBanned = false;
+    switchScreen('login');
+  }
+
+  function switchScreen(screen) {
+    const allScreens = ['loginScreen','levelsScreen','tablesScreen','adhkarMainScreen','morningPage','eveningPage','sunnahPage','shamailPage','profileScreen','editProfileScreen','settingsScreen','guidelinesScreen','privacyScreen','copyrightScreen','developerScreen','notificationsScreen','notificationDetailScreen','liveScreen'];
+    allScreens.forEach(id => { let el = document.getElementById(id); if(el) el.classList.add('hidden'); });
+    if (screen !== 'live') stopLivePolling();
+    document.getElementById('guidelinesContent').innerHTML = SUNNAH_FULL;
+    document.getElementById('privacyContent').innerHTML = PRIVACY_TEXT;
+    document.getElementById('copyrightContent').innerHTML = COPYRIGHT_TEXT;
+    if(screen==='login') document.getElementById('loginScreen')?.classList.remove('hidden');
+    else if(screen==='levels') { if(!isBanned) document.getElementById('levelsScreen')?.classList.remove('hidden'); else switchScreen('login'); }
+    else if(screen==='tables') { if(!isBanned) document.getElementById('tablesScreen')?.classList.remove('hidden'); else switchScreen('login'); }
+    else if(screen==='adhkar') { if(!isBanned) document.getElementById('adhkarMainScreen')?.classList.remove('hidden'); else switchScreen('login'); }
+    else if(screen==='morning') { document.getElementById('morningContent').innerHTML = MORNING_FULL; document.getElementById('morningPage')?.classList.remove('hidden'); }
+    else if(screen==='evening') { document.getElementById('eveningContent').innerHTML = EVENING_FULL; document.getElementById('eveningPage')?.classList.remove('hidden'); }
+    else if(screen==='sunnah') { document.getElementById('sunnahContent').innerHTML = SUNNAH_FULL; document.getElementById('sunnahPage')?.classList.remove('hidden'); }
+    else if(screen==='shamail') { document.getElementById('shamailContent').innerHTML = SHAMAIL_FULL; document.getElementById('shamailPage')?.classList.remove('hidden'); }
+    else if(screen==='profile') { document.getElementById('profileName').innerText = currentUser?.user_metadata?.name || currentUser?.email || ''; document.getElementById('profileEmail').innerText = currentUser?.email || ''; document.getElementById('profileScreen')?.classList.remove('hidden'); }
+    else if(screen==='live') { document.getElementById('liveScreen')?.classList.remove('hidden'); startLivePolling(); }
+    else if(screen==='editProfile') { document.getElementById('editUserName').value = currentUser?.user_metadata?.name || ''; document.getElementById('editProfileScreen')?.classList.remove('hidden'); }
+    else if(screen==='settings') { document.getElementById('notifToggle').classList.toggle('active',appSettings.notifications); document.getElementById('darkModeToggle').classList.toggle('active',appSettings.darkMode); document.getElementById('quranFontToggle').classList.toggle('active',appSettings.quranFont); document.getElementById('settingsScreen')?.classList.remove('hidden'); updatePushUI(); }
+    else if(screen==='guidelines') document.getElementById('guidelinesScreen')?.classList.remove('hidden');
+    else if(screen==='privacy') document.getElementById('privacyScreen')?.classList.remove('hidden');
+    else if(screen==='copyright') document.getElementById('copyrightScreen')?.classList.remove('hidden');
+    else if(screen==='developer') document.getElementById('developerScreen')?.classList.remove('hidden');
+    else if(screen==='notifications') { loadNotifications(); document.getElementById('notificationsScreen')?.classList.remove('hidden'); }
+    else if(screen==='notificationDetail') document.getElementById('notificationDetailScreen')?.classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    const map = {levels:'levels', adhkar:'adhkar', live:'live', notifications:'notifications', profile:'profile'};
+    if(map[screen]) document.querySelector(`[data-screen="${map[screen]}"]`)?.classList.add('active');
+  }
+
+  document.getElementById('doLoginBtn')?.addEventListener('click', () => login(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value));
+  document.getElementById('doRegisterBtn')?.addEventListener('click', () => register(document.getElementById('regName').value, document.getElementById('regEmail').value, document.getElementById('regPassword').value));
+  document.getElementById('showRegisterBtn')?.addEventListener('click',()=>{ document.getElementById('loginForm').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden'); });
+  document.getElementById('showLoginBtn')?.addEventListener('click',()=>{ document.getElementById('registerForm').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden'); });
+  document.getElementById('logoutBtn2')?.addEventListener('click', logout);
+  document.getElementById('editProfileBtn')?.addEventListener('click',()=>switchScreen('editProfile'));
+  document.getElementById('saveProfileBtn')?.addEventListener('click', async () => { if(currentUser){ let newName = document.getElementById('editUserName').value; await supabaseClient.auth.updateUser({ data: { name: newName } }); await showCustomAlert("تم التحديث"); switchScreen('profile'); } });
+  document.getElementById('backFromEditProfile')?.addEventListener('click',()=>switchScreen('profile'));
+  document.getElementById('settingsBtn')?.addEventListener('click',()=>switchScreen('settings'));
+  document.getElementById('notifToggle')?.addEventListener('click',function(){ this.classList.toggle('active'); appSettings.notifications=this.classList.contains('active'); localStorage.setItem('dawha_settings',JSON.stringify(appSettings)); });
+  document.getElementById('darkModeToggle')?.addEventListener('click',function(){ this.classList.toggle('active'); appSettings.darkMode=this.classList.contains('active'); localStorage.setItem('dawha_settings',JSON.stringify(appSettings)); applyTheme(); });
+  document.getElementById('quranFontToggle')?.addEventListener('click',function(){ this.classList.toggle('active'); appSettings.quranFont=this.classList.contains('active'); localStorage.setItem('dawha_settings',JSON.stringify(appSettings)); });
+  document.getElementById('pushToggleBtn')?.addEventListener('click', async () => {
+    if (await isPushActive()) { await disablePush(); await showCustomAlert("تم إيقاف إشعارات الهاتف على هذا الجهاز."); }
+    else await enablePush();
+    updatePushUI();
+  });
+  document.getElementById('guidelinesBtn')?.addEventListener('click',()=>switchScreen('guidelines'));
+  document.getElementById('privacyBtn')?.addEventListener('click',()=>switchScreen('privacy'));
+  document.getElementById('copyrightBtn')?.addEventListener('click',()=>switchScreen('copyright'));
+  document.getElementById('developerBtn')?.addEventListener('click',()=>switchScreen('developer'));
+  document.getElementById('privacyFooterLink')?.addEventListener('click',()=>switchScreen('privacy'));
+  document.getElementById('copyrightFooterLink')?.addEventListener('click',()=>switchScreen('copyright'));
+  document.getElementById('developerFooterLink')?.addEventListener('click',()=>switchScreen('developer'));
+  document.getElementById('facebookLinkBtn')?.addEventListener('click',()=>window.open("https://www.facebook.com/abdilrhmanmostafa9000/", '_blank'));
+  document.getElementById('backFromSettings')?.addEventListener('click',()=>switchScreen('profile'));
+  document.getElementById('backFromGuidelines')?.addEventListener('click',()=>switchScreen('profile'));
+  document.querySelectorAll('.backFromPrivacy, .backFromCopyright, .backFromDeveloper').forEach(b=>b?.addEventListener('click',()=>switchScreen('profile')));
+  document.getElementById('backFromTablesBtn')?.addEventListener('click',()=>switchScreen('levels'));
+  document.getElementById('backFromNotificationsBtn')?.addEventListener('click',()=>switchScreen('levels'));
+  document.getElementById('backFromNotificationDetail')?.addEventListener('click',()=>switchScreen('notifications'));
+  document.getElementById('backFromLive')?.addEventListener('click',()=>switchScreen('levels'));
+  document.getElementById('liveRefreshBtn')?.addEventListener('click',()=>{ liveCurrentUrl = null; stopWebrtcViewer(); renderLive(); });
+  document.querySelectorAll('.backFromAdhkar').forEach(b=>b.addEventListener('click',()=>switchScreen('adhkar')));
+  document.querySelectorAll('.nav-item').forEach(btn=>btn.addEventListener('click',()=>{ if(!currentUser || isBanned) return; let scr=btn.dataset.screen; if(scr==='levels') switchScreen('levels'); else if(scr==='adhkar') switchScreen('adhkar'); else if(scr==='live') switchScreen('live'); else if(scr==='profile') switchScreen('profile'); else if(scr==='notifications') switchScreen('notifications'); }));
+  document.querySelectorAll('.vertical-adhkar-btn').forEach(btn=>btn.addEventListener('click',()=>{ if(!currentUser || isBanned) return; let p=btn.dataset.page; if(p==='morning') switchScreen('morning'); else if(p==='evening') switchScreen('evening'); else if(p==='sunnah') switchScreen('sunnah'); else if(p==='shamail') switchScreen('shamail'); }));
+  document.getElementById('notificationBellBtn')?.addEventListener('click', () => { if (currentUser && !isBanned) switchScreen('notifications'); else showCustomAlert("الرجاء تسجيل الدخول أولاً"); });
+  document.getElementById('closeReminderBtn')?.addEventListener('click', () => { document.getElementById('reminderPopup').style.display = 'none'; });
+  document.getElementById('closeHadithBtn')?.addEventListener('click', () => { document.getElementById('hadithPopup').style.display = 'none'; });
+
+  function updateDateTime(){ let n=new Date(); document.getElementById('currentTime').innerHTML=`${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`; document.getElementById('gregorianDate').innerHTML=n.toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'}); try{ let h=new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(n); document.getElementById('hijriDate').innerHTML=h; }catch(e){ document.getElementById('hijriDate').innerHTML=`${n.getDate()} محرم 1446`; } }
+  setInterval(updateDateTime,1000); updateDateTime();
+  applyTheme();
+  scheduleReminders();
+
+  // تشغيل الصوت التذكاري للأيام العشر (مرة بعد دقيقة ثم كل ساعة حتى 27/5/2026 9ص)
+  let tenDaysAudio = null;
+  let tenDaysInterval = null;
+  const TEN_DAYS_END = new Date(2026, 4, 27, 9, 0, 0);
+  function playTenDaysSoundAndPopup() {
+    if (new Date() >= TEN_DAYS_END) {
+      if (tenDaysInterval) clearInterval(tenDaysInterval);
+      if (tenDaysAudio) { tenDaysAudio.pause(); tenDaysAudio = null; }
+      return;
+    }
+    try {
+      if (tenDaysAudio) { tenDaysAudio.pause(); tenDaysAudio.currentTime = 0; }
+      tenDaysAudio = new Audio(TEN_DAYS_SOUND_URL);
+      tenDaysAudio.play().catch(e => console.log("صوت غير متاح"));
+      const hadithPopup = document.getElementById('hadithPopup');
+      if (hadithPopup) {
+        hadithPopup.style.display = 'block';
+        setTimeout(() => hadithPopup.style.display = 'none', 15000);
+      }
+    } catch(e) { console.log(e); }
+  }
+  function startTenDaysReminder() {
+    if (tenDaysInterval) clearInterval(tenDaysInterval);
+    if (new Date() >= TEN_DAYS_END) return;
+    setTimeout(() => {
+      playTenDaysSoundAndPopup();
+      tenDaysInterval = setInterval(playTenDaysSoundAndPopup, 60 * 60 * 1000);
+    }, 60 * 1000);
+  }
+  startTenDaysReminder();
+
+  function showPrayerReminder() {
+    const today = getCurrentDateKey();
+    const lastReminder = localStorage.getItem('lastPrayerReminderDate');
+    if (lastReminder === today) return;
+    try { new Audio(SOUND_URL).play().catch(e=>console.log("صوت غير متاح")); } catch(e) {}
+    document.getElementById('prayerPopupOverlay').style.display = 'flex';
+    localStorage.setItem('lastPrayerReminderDate', today);
+  }
+  document.getElementById('prayerYesBtn')?.addEventListener('click', () => { document.getElementById('prayerPopupOverlay').style.display = 'none'; });
+  document.getElementById('prayerRemindBtn')?.addEventListener('click', () => { document.getElementById('prayerPopupOverlay').style.display = 'none'; });
+
+  const statusMessages = ["⚙️ تهيئة الصلاحيات...","🌐 جاري الاتصال بقاعدة البيانات...","🔐 جاري المصادقة...","📦 تحميل البيانات...","✅ جاهز!"];
+  let msgIndex = 0;
+  const splashStatus = document.getElementById('splashStatus');
+  const splashProgress = document.getElementById('splashProgress');
+  function updateSplashMessage() {
+    if (msgIndex < statusMessages.length) {
+      splashStatus.innerHTML = `<span class="status-text">${statusMessages[msgIndex]}</span>`;
+      splashProgress.style.width = `${((msgIndex+1)/statusMessages.length)*100}%`;
+      msgIndex++;
+      setTimeout(updateSplashMessage, 800);
+    } else {
+      setTimeout(() => { document.getElementById('splashScreen')?.classList.add('hidden'); }, 500);
+    }
+  }
+  updateSplashMessage();
+
+  async function init() {
+    let stored = localStorage.getItem('dawha_current_user');
+    if(stored) {
+      let { data: { session } } = await supabaseClient.auth.getSession();
+      if(session?.user) { currentUser = session.user; await loadUserData(); if(!isBanned) { renderLevels(); switchScreen('levels'); setTimeout(showPrayerReminder, 5000); setTimeout(pushPromptOrSync, 9000); } else switchScreen('login'); }
+      else switchScreen('login');
+    } else switchScreen('login');
+  }
+  init();
+</script>
+</body>
+</html>
