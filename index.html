@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <title>الدوحة المحمدية - المستويات والأذكار والشمائل</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0a1a0c">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Amiri+Quran&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -149,6 +155,29 @@
     .live-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: rgba(0,0,0,0.65); color: #f5d742; text-align: center; padding: 15px; font-size: 0.9rem; pointer-events: none; }
     .live-overlay i { font-size: 2rem; }
     .live-overlay.hidden { display: none; }
+    .live-stage { position: relative; width: 100%; }
+    .live-stage:fullscreen { background: #000; display: flex; align-items: center; justify-content: center; }
+    .live-stage:-webkit-full-screen { background: #000; display: flex; align-items: center; justify-content: center; }
+    .live-stage:fullscreen .live-frame-wrap, .live-stage:-webkit-full-screen .live-frame-wrap { border-radius: 0; border: 0; box-shadow: none; max-height: 100vh; }
+    .live-fs-btn { position: absolute; top: 8px; left: 8px; z-index: 8; background: rgba(0,0,0,0.55); color: #fff; border: 1px solid rgba(255,255,255,0.4); width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 0.85rem; }
+    .live-frame-wrap video.live-pip { inset: auto; top: 8px; right: 8px; left: auto; bottom: auto; width: 24%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px; border: 2px solid #d4af37; z-index: 4; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    .live-frame-wrap video.live-pip.hidden { display: none; }
+    .live-chat-overlay { position: absolute; left: 8px; right: 8px; bottom: 44px; max-height: 42%; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30%); mask-image: linear-gradient(to bottom, transparent 0, #000 30%); display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: 4px; pointer-events: none; z-index: 5; }
+    .live-msg { max-width: 78%; background: rgba(0,0,0,0.5); color: #fff; border-radius: 12px; padding: 2px 9px; font-size: 0.7rem; line-height: 1.45; word-break: break-word; transition: opacity 0.6s; }
+    .live-msg b { color: #f5d742; margin-inline-end: 6px; }
+    .live-msg.admin { background: rgba(46,125,50,0.75); }
+    .live-msg.admin b { color: #d6f5a8; }
+    .live-msg.fade { opacity: 0; }
+    .live-chat-overlay .live-msg:nth-last-child(n+5) { display: none; }
+    .live-stage:fullscreen .live-chat-overlay .live-msg:nth-last-child(n+5), .live-stage:-webkit-full-screen .live-chat-overlay .live-msg:nth-last-child(n+5) { display: block; }
+    .live-stage:fullscreen .live-msg, .live-stage:-webkit-full-screen .live-msg { font-size: 0.9rem; }
+    body.dark-mode .glass-card #liveChatOverlay .live-msg { color: #fff !important; }
+    .live-chat-bar { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+    .live-chat-bar input { flex: 1; padding: 11px 16px; border: 2px solid #b8945a; border-radius: 30px; font-family: inherit; font-size: 0.9rem; background: #fffef7; color: #2c4b1e; text-align: right; min-width: 0; }
+    .live-chat-bar button { flex: none; background: #2e7d32; color: #fff; border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1rem; box-shadow: 0 3px 0 #0d3b0d; }
+    .live-chat-note { text-align: center; font-size: 0.75rem; color: #b33f2f; margin-top: 6px; min-height: 1em; }
+    .live-tap { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 6; background: #2e7d32; color: #fff; border: 2px solid #d4af37; border-radius: 30px; padding: 6px 14px; font-family: inherit; font-weight: 800; font-size: 0.75rem; white-space: nowrap; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5); animation: tapPulse 1.6s infinite; }
+    @keyframes tapPulse { 0%,100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.06); } }
     .live-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; height: 100%; color: #d4af37; text-align: center; padding: 15px; font-size: 0.9rem; }
     .live-empty i { font-size: 2.5rem; }
     .live-title { text-align: center; margin: 12px 0 4px; font-weight: 800; font-size: 1rem; color: #2c4b1e; }
@@ -222,9 +251,19 @@
       <div class="screen-title">📡 البث المباشر</div>
     </div>
     <div class="live-status"><span class="live-badge offline" id="liveBadge"><span class="live-dot"></span><span id="liveBadgeText">جاري التحقق...</span></span></div>
-    <div class="live-frame-wrap" id="liveFrameWrap"></div>
+    <div class="live-stage" id="liveStage">
+      <div class="live-frame-wrap" id="liveFrameWrap"></div>
+      <div class="live-chat-overlay" id="liveChatOverlay"></div>
+      <button class="live-fs-btn" id="liveFsBtn" title="ملء الشاشة" aria-label="ملء الشاشة"><i class="fas fa-expand"></i></button>
+    </div>
+    <div class="live-chat-bar hidden" id="liveChatBar">
+      <input type="text" id="liveChatInput" maxlength="200" placeholder="اكتب رسالة للجميع..." autocomplete="off">
+      <button id="liveChatSend" aria-label="إرسال"><i class="fas fa-paper-plane"></i></button>
+    </div>
+    <div class="live-chat-note" id="liveChatNote"></div>
     <div class="live-title" id="liveTitle"></div>
     <div class="live-desc" id="liveDesc"></div>
+    <div class="live-desc" id="liveDiag" style="font-size:0.65rem; opacity:.75; direction:ltr;"></div>
     <button class="save-btn" id="liveRefreshBtn"><i class="fas fa-rotate"></i> تحديث</button>
   </div>
 
@@ -645,7 +684,7 @@
         .order('created_at', { ascending: false })
         .limit(1);
       if (!error && data && data.length > 0 && data[0].url) {
-        return { title: data[0].title || LIVE_STREAM_TITLE, description: data[0].description || '', url: data[0].url };
+        return { id: data[0].id, title: data[0].title || LIVE_STREAM_TITLE, description: data[0].description || '', url: data[0].url };
       }
     } catch (e) { console.log('live_streams غير متاح', e); }
     // 2) الرابط الثابت من الإعدادات
@@ -665,6 +704,7 @@
       setLiveState(false, 'لا يوجد بث حالياً');
       titleEl.textContent = '';
       descEl.textContent = '';
+      stopChat();
       showLiveEmpty('لا يوجد بث مباشر في الوقت الحالي.<br>سيظهر البث هنا فور بدئه.');
       return;
     }
@@ -674,18 +714,21 @@
       titleEl.textContent = stream.title;
       descEl.textContent = stream.description;
       if (!rtcActive) startWebrtcViewer();
+      startChat(stream.id);
       return;
     }
     stopWebrtcViewer();
     const embed = toEmbedUrl(stream.url);
     if (!embed) {
       setLiveState(false, 'رابط البث غير صالح');
+      stopChat();
       showLiveEmpty('رابط البث غير صالح. تأكد أنه يبدأ بـ https');
       return;
     }
     setLiveState(true, 'بث مباشر الآن');
     titleEl.textContent = stream.title;
     descEl.textContent = stream.description;
+    startChat(stream.id);
     // لا نعيد تحميل الفيديو إن كان نفس الرابط يعمل بالفعل
     if (liveCurrentUrl === embed && wrap.querySelector('iframe')) return;
     liveCurrentUrl = embed;
@@ -700,17 +743,13 @@
   }
 
   // ===== مشاهدة البث بالكاميرا (WebRTC عبر Supabase Realtime) =====
-  const RTC_CONFIG = {
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' },
-      // خادم TURN ضروري للمشاهدين على شبكات الموبايل (بدونه يفشل الاتصال عند كثير منهم).
-      // الأفضل استبدال هذه البيانات بحسابك المجاني من metered.ca أو Cloudflare TURN.
-      { urls: ['turn:openrelay.metered.ca:80', 'turn:openrelay.metered.ca:443', 'turns:openrelay.metered.ca:443?transport=tcp'], username: 'openrelayproject', credential: 'openrelayproject' }
-    ],
-    iceCandidatePoolSize: 2
-  };
-  let rtcActive = false, rtcChannel = null, rtcPc = null, rtcVid = null, rtcJoinTimer = null, rtcPendingIce = [], rtcConnected = false, rtcLastHost = 0, rtcDiscTimer = null;
+  // ===== خادم TURN (يحل مشكلة تجمّد الصورة وغياب الصوت على شبكات الهاتف) =====
+  // ألصق هنا مصفوفة iceServers التي تعطيها لك لوحة Metered/Cloudflare (نفس السطر في index.html و admin.html).
+  // مثال: [{ urls: 'turn:HOST:443?transport=tcp', username: 'USER', credential: 'PASS' }]
+  const TURN_SERVERS = [];
+  const RTC_CONFIG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }, ...TURN_SERVERS] };
+  let rtcWatch = null, rtcDiag = null, rtcLastT = -1, rtcStall = 0, rtcMeta = null;
+  let rtcActive = false, rtcChannel = null, rtcPc = null, rtcVid = null, rtcJoinTimer = null, rtcPendingIce = [], rtcConnected = false;
 
   function rtcSend(payload) { try { rtcChannel?.send({ type: 'broadcast', event: 'sig', payload }); } catch (e) {} }
   function rtcJoin() { rtcSend({ type: 'join', from: rtcVid, to: 'host' }); }
@@ -718,6 +757,12 @@
     const o = document.getElementById('liveOverlay');
     if (!o) return;
     if (msg) { o.querySelector('div').textContent = msg; o.classList.remove('hidden'); } else o.classList.add('hidden');
+  }
+  function rtcUpdateTap() {
+    const v = document.getElementById('liveVideo'), b = document.getElementById('liveTapBtn');
+    if (!v || !b) return;
+    // نُظهر الزر طالما الفيديو متوقف أو مكتوم الصوت
+    b.classList.toggle('hidden', !!(v.srcObject) === false ? true : (!v.paused && !v.muted));
   }
   function rtcClosePc() {
     const pc = rtcPc; rtcPc = null; rtcPendingIce = [];
@@ -730,51 +775,84 @@
     liveCurrentUrl = null;
     rtcVid = 'v' + Math.random().toString(36).slice(2, 10);
     const wrap = document.getElementById('liveFrameWrap');
-    wrap.innerHTML = '<video id="liveVideo" autoplay playsinline controls muted></video><div class="live-overlay" id="liveOverlay"><i class="fas fa-circle-notch fa-spin"></i><div>جاري الاتصال بالبث...</div></div><button id="liveUnmuteBtn" style="position:absolute;bottom:50px;left:10px;z-index:3;background:#2e7d32;color:#fff;border:2px solid #d4af37;border-radius:25px;padding:6px 14px;font-family:Cairo,sans-serif;font-weight:bold;cursor:pointer;display:none;">🔊 تشغيل الصوت</button>';
-    rtcLastHost = Date.now();
-    const _vid = document.getElementById('liveVideo'), _um = document.getElementById('liveUnmuteBtn');
-    _vid.addEventListener('playing', () => { rtcOverlay(null); if (_vid.muted) _um.style.display = 'block'; });
-    _um.addEventListener('click', () => { _vid.muted = false; _vid.play().catch(() => {}); _um.style.display = 'none'; });
+    wrap.innerHTML = '<video id="liveVideo" autoplay playsinline webkit-playsinline controls muted></video><video id="livePip" class="live-pip hidden" autoplay playsinline webkit-playsinline muted></video><div class="live-overlay" id="liveOverlay"><i class="fas fa-circle-notch fa-spin"></i><div>جاري الاتصال بالبث...</div></div><button class="live-tap hidden" id="liveTapBtn">🔊 اضغط لتشغيل الصوت والفيديو</button>';
+    const vEl = document.getElementById('liveVideo');
+    ['playing', 'pause', 'volumechange', 'loadedmetadata'].forEach(ev => vEl.addEventListener(ev, rtcUpdateTap));
+    const pipEl = document.getElementById('livePip');
+    document.getElementById('liveTapBtn').addEventListener('click', () => {
+      [vEl, pipEl].forEach(el => {
+        el.muted = false; el.volume = 1;
+        const pr = el.play();
+        if (pr && pr.catch) pr.catch(() => { el.muted = true; el.play().catch(() => {}); }).then(rtcUpdateTap);
+      });
+      rtcUpdateTap();
+    });
+    // مراقبة تجمّد الصورة: إن توقف الفيديو عن التقدم نعيد الاتصال تلقائياً
+    rtcDiag = setInterval(async () => {
+      const el = document.getElementById('liveDiag');
+      if (!el) return;
+      if (!rtcPc) { el.textContent = 'pc: none | waiting for host'; return; }
+      try {
+        const st = await rtcPc.getStats();
+        let vid = null, aud = null;
+        st.forEach(r => { if (r.type === 'inbound-rtp') { if (r.kind === 'video') vid = r; else if (r.kind === 'audio') aud = r; } });
+        const v = document.getElementById('liveVideo');
+        el.textContent = `${rtcPc.connectionState}/${rtcPc.iceConnectionState} | video ${vid ? (vid.frameWidth || '?') + 'x' + (vid.frameHeight || '?') + ' ' + Math.round(vid.framesPerSecond || 0) + 'fps frames=' + (vid.framesDecoded || 0) + ' bytes=' + (vid.bytesReceived || 0) : 'no-track'} | audio ${aud ? 'bytes=' + (aud.bytesReceived || 0) : 'no-track'} | paused=${v ? v.paused : '?'} muted=${v ? v.muted : '?'}`;
+      } catch (e) { el.textContent = 'stats error'; }
+    }, 2000);
+    // مراقبة انقطاع وصول البيانات (حسب عدد البايتات المستلمة) وإعادة الاتصال تلقائياً
+    rtcLastT = -1; rtcStall = 0;
+    rtcWatch = setInterval(async () => {
+      if (!rtcConnected || !rtcPc) { rtcStall = 0; return; }
+      try {
+        const st = await rtcPc.getStats();
+        let bytes = 0;
+        st.forEach(r => { if (r.type === 'inbound-rtp') bytes += r.bytesReceived || 0; });
+        if (bytes === rtcLastT) {
+          rtcStall++;
+          if (rtcStall >= 6) { rtcStall = 0; rtcConnected = false; rtcClosePc(); rtcOverlay('إعادة الاتصال بالبث...'); rtcJoin(); }
+        } else { rtcStall = 0; rtcLastT = bytes; }
+      } catch (e) {}
+    }, 4000);
     rtcChannel = supabaseClient.channel('dawha-live', { config: { broadcast: { self: false } } });
     rtcChannel.on('broadcast', { event: 'sig' }, ({ payload }) => onRtcSignal(payload)).subscribe(status => {
       if (status === 'SUBSCRIBED') {
         rtcJoin();
-        rtcJoinTimer = setInterval(() => {
-          if (!rtcConnected) {
-            rtcJoin();
-            if (Date.now() - rtcLastHost > 25000) rtcOverlay('المذيع غير متصل حالياً، سيبدأ العرض تلقائياً عند عودته');
-          }
-        }, 7000);
+        rtcJoinTimer = setInterval(() => { if (!rtcConnected) rtcJoin(); }, 4000);
       }
     });
   }
 
   async function onRtcSignal(p) {
     if (!p || !rtcActive) return;
-    if (p.type === 'host-ready') { rtcLastHost = Date.now(); if (!rtcConnected) rtcJoin(); return; }
+    if (p.type === 'host-ready') { if (!rtcConnected) rtcJoin(); return; }
     if (p.type === 'end') { rtcConnected = false; rtcClosePc(); rtcOverlay('انتهى البث'); return; }
-    if (p.to === rtcVid) rtcLastHost = Date.now();
     if (p.to !== rtcVid) return;
     try {
       if (p.type === 'full') { rtcOverlay('البث ممتلئ حالياً، حاول بعد قليل'); return; }
       if (p.type === 'offer') {
         rtcClosePc();
+        rtcMeta = p.meta || null;
+        { const pe = document.getElementById('livePip'); if (pe && !(rtcMeta && rtcMeta.pip)) { pe.classList.add('hidden'); pe.srcObject = null; } }
         const pc = new RTCPeerConnection(RTC_CONFIG);
         rtcPc = pc;
         pc.ontrack = (e) => {
-          const v = document.getElementById('liveVideo');
-          if (v && v.srcObject !== e.streams[0]) { v.srcObject = e.streams[0]; v.play().catch(() => {}); }
+          const st = e.streams[0];
+          if (!st) return;
+          const isPip = !!(rtcMeta && rtcMeta.pip && st.id === rtcMeta.pip);
+          const v = document.getElementById(isPip ? 'livePip' : 'liveVideo');
+          if (!v) return;
+          if (v.srcObject !== st) v.srcObject = st;
+          if (isPip) v.classList.remove('hidden');
+          const pr = v.play(); if (pr && pr.catch) pr.catch(() => {}).then(rtcUpdateTap);
+          rtcConnected = true;
+          rtcOverlay(null);
         };
         pc.onicecandidate = (e) => { if (e.candidate) rtcSend({ type: 'ice', from: rtcVid, to: 'host', data: e.candidate }); };
         pc.onconnectionstatechange = () => {
           if (pc !== rtcPc) return;
-          const st = pc.connectionState;
-          if (rtcDiscTimer) { clearTimeout(rtcDiscTimer); rtcDiscTimer = null; }
-          if (st === 'connected') { rtcConnected = true; rtcOverlay(null); }
-          else if (st === 'disconnected') {
-            rtcDiscTimer = setTimeout(() => { if (pc === rtcPc && pc.connectionState !== 'connected') { rtcConnected = false; rtcClosePc(); rtcOverlay('انقطع الاتصال... جاري إعادة المحاولة'); rtcJoin(); } }, 6000);
-          } else if (st === 'failed' || st === 'closed') {
-            rtcConnected = false; rtcClosePc(); rtcOverlay('انقطع الاتصال... جاري إعادة المحاولة'); setTimeout(() => { if (rtcActive && !rtcConnected) rtcJoin(); }, 1500);
+          if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
+            rtcConnected = false; rtcClosePc(); rtcOverlay('انقطع الاتصال... جاري إعادة المحاولة');
           }
         };
         await pc.setRemoteDescription(p.data);
@@ -793,14 +871,91 @@
   function stopWebrtcViewer() {
     rtcActive = false; rtcConnected = false;
     if (rtcJoinTimer) { clearInterval(rtcJoinTimer); rtcJoinTimer = null; }
-    if (rtcDiscTimer) { clearTimeout(rtcDiscTimer); rtcDiscTimer = null; }
+    if (rtcWatch) { clearInterval(rtcWatch); rtcWatch = null; }
+    if (rtcDiag) { clearInterval(rtcDiag); rtcDiag = null; }
+    { const d = document.getElementById('liveDiag'); if (d) d.textContent = ''; }
     rtcClosePc();
-    if (rtcChannel) {
-      const ch = rtcChannel, vid = rtcVid; rtcChannel = null;
-      try { ch.send({ type: 'broadcast', event: 'sig', payload: { type: 'leave', from: vid, to: 'host' } }); } catch (e) {}
-      setTimeout(() => { try { supabaseClient.removeChannel(ch); } catch (e) {} }, 300);
-    }
+    if (rtcChannel) { try { supabaseClient.removeChannel(rtcChannel); } catch (e) {} rtcChannel = null; }
   }
+
+
+  // ===== الدردشة المباشرة (بأسلوب تيك توك) =====
+  let chatChan = null, chatStreamId = null, chatLastSend = 0, chatNoteTimer = null;
+  const CHAT_MAX_VISIBLE = 7, CHAT_LIFETIME = 30000;
+
+  function chatNote(text) {
+    const n = document.getElementById('liveChatNote');
+    if (!n) return;
+    n.textContent = text || '';
+    if (chatNoteTimer) clearTimeout(chatNoteTimer);
+    if (text) chatNoteTimer = setTimeout(() => { n.textContent = ''; }, 4500);
+  }
+
+  function addChatMsg(m, silentOld) {
+    const ov = document.getElementById('liveChatOverlay');
+    if (!ov || !m) return;
+    if (ov.querySelector(`[data-mid="${m.id}"]`)) return;
+    const d = document.createElement('div');
+    d.className = 'live-msg' + (m.is_admin ? ' admin' : '');
+    d.dataset.mid = m.id;
+    const b = document.createElement('b'); b.textContent = m.user_name || 'مستخدم';
+    d.appendChild(b);
+    d.appendChild(document.createTextNode(m.body));
+    ov.appendChild(d);
+    while (ov.children.length > CHAT_MAX_VISIBLE) ov.removeChild(ov.firstChild);
+    setTimeout(() => { d.classList.add('fade'); setTimeout(() => d.remove(), 700); }, CHAT_LIFETIME);
+  }
+
+  function stopChat() {
+    if (chatChan) { try { supabaseClient.removeChannel(chatChan); } catch (e) {} chatChan = null; }
+    chatStreamId = null;
+    const ov = document.getElementById('liveChatOverlay'); if (ov) ov.innerHTML = '';
+    document.getElementById('liveChatBar')?.classList.add('hidden');
+    chatNote('');
+  }
+
+  async function startChat(streamId) {
+    if (!streamId || !currentUser) { stopChat(); return; }
+    if (chatChan && String(chatStreamId) === String(streamId)) return;
+    stopChat();
+    chatStreamId = streamId;
+    const sid = streamId;
+    document.getElementById('liveChatBar')?.classList.remove('hidden');
+    chatChan = supabaseClient.channel('chat-' + sid)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `stream_id=eq.${sid}` }, (p) => addChatMsg(p.new))
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'chat_messages' }, (p) => { if (p.old?.id) document.querySelector(`#liveChatOverlay [data-mid="${p.old.id}"]`)?.remove(); })
+      .subscribe();
+    try {
+      const { data } = await supabaseClient.from('chat_messages').select('*').eq('stream_id', sid).order('created_at', { ascending: false }).limit(6);
+      if (String(chatStreamId) !== String(sid)) return;
+      (data || []).reverse().filter(m => Date.now() - new Date(m.created_at).getTime() < 45000).forEach(m => addChatMsg(m));
+    } catch (e) {}
+  }
+
+  async function sendChat() {
+    const input = document.getElementById('liveChatInput');
+    const body = (input.value || '').trim();
+    if (!body || !chatStreamId || !currentUser) return;
+    const now = Date.now();
+    if (now - chatLastSend < 1500) { chatNote('انتظر لحظة قبل إرسال رسالة أخرى'); return; }
+    chatLastSend = now;
+    input.value = '';
+    const { data, error } = await supabaseClient.from('chat_messages').insert({ stream_id: chatStreamId, body: body.slice(0, 200) }).select().single();
+    if (error) { chatNote('تعذر الإرسال. قد تكون ممنوعاً من الدردشة أو انتهى البث.'); return; }
+    addChatMsg(data);
+  }
+
+  function toggleLiveFullscreen() {
+    const st = document.getElementById('liveStage');
+    const isFs = document.fullscreenElement || document.webkitFullscreenElement;
+    if (isFs) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+    const req = st.requestFullscreen || st.webkitRequestFullscreen;
+    if (!req) { chatNote('ملء الشاشة غير مدعوم هنا'); return; }
+    const r = req.call(st);
+    const lock = () => { try { screen.orientation?.lock?.('landscape').catch(() => {}); } catch (e) {} };
+    if (r && r.then) r.then(lock).catch(() => {}); else lock();
+  }
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) { try { screen.orientation?.unlock?.(); } catch (e) {} } });
 
   function startLivePolling() {
     stopLivePolling();
@@ -810,6 +965,7 @@
   function stopLivePolling() {
     if (liveTimer) { clearInterval(liveTimer); liveTimer = null; }
     stopWebrtcViewer();
+    stopChat();
     // إيقاف البث عند مغادرة الشاشة
     const wrap = document.getElementById('liveFrameWrap');
     if (wrap) wrap.innerHTML = '';
@@ -1067,6 +1223,9 @@
   document.getElementById('backFromNotificationsBtn')?.addEventListener('click',()=>switchScreen('levels'));
   document.getElementById('backFromNotificationDetail')?.addEventListener('click',()=>switchScreen('notifications'));
   document.getElementById('backFromLive')?.addEventListener('click',()=>switchScreen('levels'));
+  document.getElementById('liveChatSend')?.addEventListener('click', sendChat);
+  document.getElementById('liveChatInput')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); sendChat(); } });
+  document.getElementById('liveFsBtn')?.addEventListener('click', toggleLiveFullscreen);
   document.getElementById('liveRefreshBtn')?.addEventListener('click',()=>{ liveCurrentUrl = null; stopWebrtcViewer(); renderLive(); });
   document.querySelectorAll('.backFromAdhkar').forEach(b=>b.addEventListener('click',()=>switchScreen('adhkar')));
   document.querySelectorAll('.nav-item').forEach(btn=>btn.addEventListener('click',()=>{ if(!currentUser || isBanned) return; let scr=btn.dataset.screen; if(scr==='levels') switchScreen('levels'); else if(scr==='adhkar') switchScreen('adhkar'); else if(scr==='live') switchScreen('live'); else if(scr==='profile') switchScreen('profile'); else if(scr==='notifications') switchScreen('notifications'); }));
