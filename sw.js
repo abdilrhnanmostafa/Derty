@@ -31,3 +31,15 @@ self.addEventListener('notificationclick', (event) => {
     if (self.clients.openWindow) await self.clients.openWindow(target);
   })());
 });
+
+// معالج fetch مطلوب ليعتبر Chrome التطبيق قابلاً للتثبيت. لا نخزّن شيئاً، فقط صفحة بسيطة عند انقطاع الإنترنت.
+self.addEventListener('fetch', (event) => {
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => new Response(
+        '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body dir="rtl" style="font-family:sans-serif;text-align:center;padding:48px 20px;background:#0a1a0c;color:#f5e7c4"><h2>لا يوجد اتصال بالإنترنت</h2><p>تحقق من الاتصال ثم أعد فتح التطبيق.</p>',
+        { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+      ))
+    );
+  }
+});

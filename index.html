@@ -1297,6 +1297,11 @@
   }
   updateSplashMessage();
 
+  // تسجيل الـ Service Worker دائماً عند فتح الصفحة (شرط أساسي لخيار «تثبيت التطبيق» في Chrome)
+  if ('serviceWorker' in navigator && window.isSecureContext) {
+    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch((e) => console.log('sw register failed', e)); });
+  }
+
   async function init() {
     let stored = localStorage.getItem('dawha_current_user');
     if(stored) {
